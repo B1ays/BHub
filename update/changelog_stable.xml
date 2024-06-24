@@ -1,3 +1,14 @@
 <messages>
-    <en default="true">Initial commit</en>
+    <en default="true">
+        ### Changed
+        - Name of default catalog match original source
+        - Full app name on about screen
+        - Small refactor
+    </en>
+    <ru>
+        ### Изменено
+        - Имя стандартного каталога соответствует оригинальному
+        - Полное имя приложения на экране "О приложении"
+        - Небольшой рефакторинг кода
+    </ru>
 </messages>

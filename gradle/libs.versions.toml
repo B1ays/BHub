@@ -1,7 +1,7 @@
 [versions]
 #Project versions
-projectVersionName = "1.0"
-projectVersionCode = "1"
+projectVersionName = "1.1"
+projectVersionCode = "2"
 
 #Dependencies versions
 agp = "8.6.0-alpha07"
