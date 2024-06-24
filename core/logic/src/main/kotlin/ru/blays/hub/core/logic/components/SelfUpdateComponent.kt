@@ -73,7 +73,10 @@ class SelfUpdateComponent(
     private fun onIntent(intent: Intent) {
         when(intent) {
             is Intent.Refresh -> refresh()
-            is Intent.UpdateApp -> update(intent.updateInfo)
+            is Intent.UpdateApp -> {
+                update(intent.updateInfo)
+                dialogNavigation.dismiss()
+            }
         }
     }
 
@@ -92,6 +95,8 @@ class SelfUpdateComponent(
                 }
                 is NetworkResult.Success -> {
                     val resultModel = result.data
+                    println(resultModel)
+
                     val changelogResult = networkRepository
                         .openStream(resultModel.changelogUrl)
 
