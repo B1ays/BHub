@@ -13,6 +13,6 @@ internal const val VIBRATION_LENGTH = 300L
 
 const val APK_MIME_TYPE = "application/vnd.android.package-archive"
 
-internal const val UPDATES_SOURCE_URL_STABLE = "" // TODO replace with real url
-internal const val UPDATES_SOURCE_URL_BETA = "" // TODO replace with real url
+internal const val UPDATES_SOURCE_URL_STABLE = "https://raw.githubusercontent.com/B1ays/BHub/main/update/update_stable.json"
+internal const val UPDATES_SOURCE_URL_BETA = "https://raw.githubusercontent.com/B1ays/BHub/main/update/update_beta.json"
 internal const val UPDATES_SOURCE_URL_NIGHTLY = "" // TODO replace with real url

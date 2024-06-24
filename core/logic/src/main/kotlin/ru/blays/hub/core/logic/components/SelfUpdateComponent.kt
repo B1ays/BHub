@@ -18,10 +18,12 @@ import ru.blays.hub.core.downloader.DownloadMode
 import ru.blays.hub.core.downloader.DownloadRequest
 import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.logic.R
+import ru.blays.hub.core.logic.data.LocalizedMessage
 import ru.blays.hub.core.logic.data.getUpdateChannelUrl
 import ru.blays.hub.core.logic.data.models.AppUpdateInfoModel
 import ru.blays.hub.core.logic.data.realType
 import ru.blays.hub.core.logic.data.toDownloaderType
+import ru.blays.hub.core.logic.utils.currentLanguage
 import ru.blays.hub.core.logic.utils.downloadsFolder
 import ru.blays.hub.core.logic.workers.DownloadAndInstallWorker
 import ru.blays.hub.core.network.NetworkResult
@@ -90,12 +92,30 @@ class SelfUpdateComponent(
                 }
                 is NetworkResult.Success -> {
                     val resultModel = result.data
-                    val changelogResult: NetworkResult<String> = networkRepository.getString(resultModel.changelogUrl)
-                    val updateInfo = resultModel.toUIModel(
-                        changelogResult.getOrDefault(
-                            defaultValue = context.getString(R.string.error_changelog_not_found)
-                        )
-                    )
+                    val changelogResult = networkRepository
+                        .openStream(resultModel.changelogUrl)
+
+                    val updateInfo = when(changelogResult) {
+                        is NetworkResult.Failure -> {
+                            resultModel.toUIModel(
+                                context.getString(R.string.error_changelog_not_found)
+                            )
+                        }
+                        is NetworkResult.Success -> {
+                            val localizedMessage = LocalizedMessage(changelogResult.data)
+                            if(localizedMessage.isValid) {
+                                val changelog = localizedMessage.getForLanguageOrDefault(
+                                    context.currentLanguage
+                                ) ?: context.getString(R.string.error_changelog_not_found)
+                                resultModel.toUIModel(changelog)
+                            } else {
+                                resultModel.toUIModel(
+                                    context.getString(R.string.error_changelog_not_found)
+                                )
+                            }
+                        }
+                    }
+
                     if(checkUpdateAvailable(resultModel.versionCode)) {
                         dialogNavigation.activate(
                             SelfUpdateDialogConfig(updateInfo)
