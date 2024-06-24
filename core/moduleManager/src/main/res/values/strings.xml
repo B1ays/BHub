@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Install_progress_starting">Starting...</string>
+    <string name="Install_progress_checkModuleExists">Check module exists</string>
+    <string name="Install_progress_generateServiceSh">Generate service.sh</string>
+    <string name="Install_progress_generateModuleProp">Generate module.prop</string>
+    <string name="Install_progress_updateModule">Update module</string>
+    <string name="Install_progress_createAppFolder">Create app folder</string>
+    <string name="Install_progress_copyApk">Copy apk to module folder</string>
+    <string name="Install_progress_writeModuleFiles">Write module files</string>
+    <string name="Install_complete">Install module complete</string>
+
+    <string name="notification_text_versionsWarning">The version of the installed original application with the package name %1$s differs from the version of the mod.\mInstall the version with the %2$d code or reinstall the mod through the manager.</string>
+</resources>

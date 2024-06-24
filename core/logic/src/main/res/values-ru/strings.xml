@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="textCopied">Текст скопирован в буффер обмена</string>
+    <string name="downloadStarted">Загрузка начата</string>
+    <string name="action_reboot">Перезагрузить</string>
+    <string name="app_installer_notification_channel_name">Установщик приложений</string>
+    <string name="app_installer_notification_channel_description">Уведомления о процессе установки</string>
+    <string name="checkUpdates_notificationChannel_name">Проверка обновлений</string>
+    <string name="checkUpdates_notificationChannel_description">Уведомления о новых версиях приложений</string>
+    <string name="checkUpdatesProcess">Проверка обновлений…</string>
+    <string name="update_available_title">Доступны обновления:</string>
+    <string name="version_formatted">Версия: %1$s</string>
+    <string name="nonRoot_version_formatted">Non-root версия: %1$s</string>
+    <string name="root_version_formatted">Root версия: %1$s</string>
+    <string name="downgradeWarn_title">Понижение версии</string>
+    <string name="downgradeWarn_message">Данная версия ниже, чем установленная.\nДля понижения версии необходимо применить патчи Android.</string>
+    <string name="app_installer_dialog_title">Установка приложения</string>
+    <string name="app_installer_dialog_success">Приложение установлено</string>
+    <string name="app_installer_dialog_error_formatted">При установке приложения возникла ошибка.\nПричина: %1$s</string>
+    <string name="app_uninstaller_dialog_title">Удаление приложения</string>
+    <string name="app_uninstaller_dialog_success">Приложение удалено</string>
+    <string name="app_uninstaller_dialog_error_formatted">При удалении приложения возникла ошибка.\nПричина: %1$s</string>
+    <string name="module_installer_dialog_title">Установка модуля</string>
+    <string name="module_installer_dialog_success">Модуль установлен.\nПерзагрузка не требуется. Если у вас возникнут какие-либо проблемы, пожалуйста, перезагрузите устройство вручную.</string>
+    <string name="module_installer_dialog_error_formatted">При установке модуля возникла ошибка.\nПричина: %1$s</string>
+    <string name="shizuku_dialog_notInstalled_title">Shizuku не установлен</string>
+    <string name="shizuku_dialog_notInstalled_message">Для работы менеджера пакетов в режиме Shizuku он должен быть установлен.\nУстановите его или отключите этот режим</string>
+    <string name="shizuku_dialog_notRunning_title">Shizuku не запущен</string>
+    <string name="shizuku_dialog_notRunning_message">Для работы в этом режиме сервис Shizuku должен быть запущен.\nПерейдите в приложение Shizuku, чтобы его включить</string>
+    <string name="initializing" tools:ignore="TypographyEllipsis">Инициализация...</string>
+    <string name="awaitingDownloads">Ожидание загрузки всех файлов</string>
+    <string name="module_creating_formatted">Создание модуля %1$s</string>
+    <string name="creatingModule" tools:ignore="TypographyEllipsis">Создание модуля...</string>
+    <string name="creatingModule_error">Создание модуля не удалось, так как загрузка файлов была отменена или возникла ошибка</string>
+    <string name="creatingModule_success">Модуль успешно установлен</string>
+    <string name="creatingModule_failed">Ошибка установки модуля</string>
+    <string name="app_installing_formatted">Установка %1$s</string>
+    <string name="app_installing_startInstallation">Начало установки</string>
+    <string name="app_installing_success">Приложение успешно установлено</string>
+    <string name="app_installing_failed">Ошибка установки приложения</string>
+    <string name="creatingModule_downloadError">Установка приложения не удалась, так как загрузка файлов была отменена или возникла ошибка</string>
+    <string name="error_readme_not_loaded">Не удалось загрузить readme</string>
+    <string name="error_changelog_not_found">Ошибка: changelog не найден</string>
+    <string name="error_root_not_granted">Ошибка: Root права не предоставлены.</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="error_openInBrowser">Не удалось открыть в браузере</string>
+    <string name="action_openInBrowser">Открыть в браузере</string>
+    <string name="unknown_name">Имя не распознано</string>
+    <string name="unknown_owner">Владелец не распознан</string>
+    <string name="error_cantParseProperties">Невозможно прочитать Property</string>
+    <string name="error_invalidUrl">Некорректная ссылка</string>
+    <string name="catalog_exists_formatted">Каталог с url: %1$s уже добален</string>
+    <string name="unable_disable_catalog">Невозможно отключить каталог.\nХотя бы один каталог должен быть активным</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="notification_channel_name">Downloader</string>
+
+    <string name="downloading_start" tools:ignore="TypographyEllipsis">Downloading...</string>
+</resources>

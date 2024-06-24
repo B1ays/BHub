@@ -1,0 +1,209 @@
+<resources>
+    <string name="app_name" translatable="false">BHub</string>
+
+    <!--  Simple  -->
+    <string name="files">Files</string>
+    <string name="changelog" translatable="false">Changelog</string>
+    <string name="packageName" translatable="false">Package name</string>
+    <string name="versionName">Version name</string>
+    <string name="versionCode">Version code</string>
+    <string name="signatureSHA">Signature SHA</string>
+    <string name="developerMenu">Developer menu</string>
+    <string name="logs">Logs</string>
+    <string name="update_available">Update available!</string>
+    <string name="description">Description:</string>
+    <string name="owner_name_formatted">Owner:\u00a0%1$s</string>
+    <string name="name_formatted">Name:\u00a0%1$s</string>
+    <string name="url_formatted" translatable="false">Url:\u00a0%1$s</string>
+    <string name="add_catalog">Add catalog</string>
+    <string name="loading">Loading…</string>
+    <string name="versions">Versions</string>
+    <string name="interval">Interval</string>
+    <string name="enabled">Enabled</string>
+
+
+    <string name="appInfo_notProvided">App info not provided</string>
+
+    <string name="sort_order_reversed">Reversed order</string>
+    <string name="sort_order_by_name">by Name</string>
+    <string name="sort_order_by_size">by Size</string>
+    <string name="sort_order_by_date">by Date</string>
+
+    <string name="version_formatted">Version:\u00a0%1$s</string>
+    <string name="versionCode_formatted">Version code:\u00a0%1$s</string>
+    <string name="patchesVersion_formatted">Patches version:\u00a0%1$s</string>
+    <string name="buildDate_formatted">Build date:\u00a0%1$s</string>
+    <string name="size_formatted">Size:\u00a0%1$s</string>
+    <string name="date_formatted">Date:\u00a0%1$s</string>
+    <string name="description_formatted">Description:\u00a0%1$s</string>
+
+    <!--  AppBar title  -->
+    <string name="appBar_title_settings">Settings</string>
+    <string name="toolbar_title_about">About</string>
+    <string name="appBar_title_downloads">Downloads</string>
+    <string name="appBar_title_catalogs">Catalogs</string>
+    <string name="appBar_title_moduleInstall">Module install</string>
+
+    <string name="bottomBar_tab_apps">Apps</string>
+    <string name="bottomBar_tab_downloads" translatable="false">@string/appBar_title_downloads</string>
+    <string name="bottomBar_tab_settings" translatable="false">@string/appBar_title_settings</string>
+    <string name="bottomBar_tab_about" translatable="false">@string/toolbar_title_about</string>
+
+    <!--  Actions  -->
+    <string name="action_delete">Delete</string>
+    <string name="action_launch">Launch</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="action_install">Install</string>
+    <string name="action_installAsModule">Install as module</string>
+    <string name="action_reinstall">Reinstall</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_paste">Paste</string>
+    <string name="action_save">Save</string>
+    <string name="action_open_in">Open in</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_clearAll">Clear all</string>
+    <string name="action_sort">Sort</string>
+    <string name="action_reboot">Reboot</string>
+    <string name="action_disable">Disable</string>
+    <string name="action_next">Next</string>
+    <string name="action_update">Update</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_back">Back</string>
+    <string name="action_add">Add</string>
+    <string name="action_submit">Submit</string>
+
+    <!--  Content description  -->
+    <string name="content_description_icon_back">Icon arrow back</string>
+    <string name="content_description_icon_forward">Icon arrow forward</string>
+    <string name="content_description_icon_down">Icon arrow down</string>
+    <string name="content_description_icon_up">Icon arrow up</string>
+    <string name="content_description_icon_smile_sad">Icon sad emoji</string>
+    <string name="content_description_icon_sort">Icon sort</string>
+    <string name="content_description_icon_clear">Icon clear</string>
+    <string name="content_description_icon_cancel">Icon cancel</string>
+    <string name="content_description_icon_delete">Icon delete</string>
+    <string name="content_description_icon_download">Icon download</string>
+    <string name="content_description_icon_more">Icon more vertical</string>
+    <string name="content_description_icon_star">Icon favourite</string>
+    <string name="content_description_icon_error">Icon error</string>
+    <string name="content_description_icon_menu">Icon menu</string>
+    <string name="content_description_icon_settings">Icon settings</string>
+    <string name="content_description_icon_filter">Icon filter</string>
+    <string name="content_description_icon_plus">Icon plus</string>
+    <string name="content_description_icon_minus">Icon minus</string>
+    <string name="content_description_icon_info">Icon info</string>
+    <string name="content_description_icon_rocket">Icon rocket launch</string>
+    <string name="content_description_icon_warning">Icon warnings sign</string>
+    <string name="content_description_application_icon">Application icon</string>
+    <string name="content_description_icon_root">Icon root permission</string>
+    <string name="content_description_icon_rootCrossed">Icon root permission not granted</string>
+    <string name="content_description_icon_wrench">Icon wrench</string>
+    <string name="content_description_icon_shizuku">Icon shizuku</string>
+    <string name="content_description_icon_curlyBrackets">Icon curly brackets</string>
+    <string name="content_description_icon_copy">Icon copy</string>
+    <string name="content_description_icon_share">Icon share</string>
+    <string name="content_description_icon_fileExport">Icon file export</string>
+    <string name="content_description_icon_edit">Icon edit</string>
+
+    <!--  Links  -->
+    <string name="link_tg_group" translatable="false">https://t.me/BHub_app</string>
+    <string name="link_github_repo" translatable="false">null</string>
+    <string name="link_developer_tg" translatable="false">https://t.me/B1ays</string>
+    <string name="link_developer_4pda" translatable="false">https://4pda.to/forum/index.php?showuser=7576426</string>
+    <string name="link_developer_github" translatable="false">https://github.com/B1ays</string>
+    <string name="link_developer_support" translatable="false">https://yoomoney.ru/to/410012804373847</string>
+
+    <!--  Settings  -->
+    <string name="settings_group_theme">Theme and colors</string>
+    <string name="settings_group_main">Main</string>
+    <string name="setting_title_theme">Theme</string>
+    <string name="setting_subtitle_theme">Select application theme</string>
+    <string name="setting_title_monet">Monet colors</string>
+    <string name="setting_subtitle_monet">Use colors from Monet</string>
+    <string name="setting_title_amoled">Amoled theme</string>
+    <string name="setting_subtitle_amoled">Use amoled theme</string>
+    <string name="setting_title_accent">Accent color</string>
+    <string name="setting_subtitle_accent">Select color accent</string>
+    <string name="setting_title_custom_tabs" translatable="false">Chrome Custom Tabs</string>
+    <string name="setting_subtitle_custom_tabs">Open url in Chrome Custom Tabs</string>
+    <string name="setting_title_glassmorphism">Glass effect</string>
+    <string name="setting_subtitle_glassmorphism">Enable glass effect fore some ui elements</string>
+    <string name="setting_subtitle_glassmorphism_alpha">Alpha</string>
+    <string name="setting_subtitle_glassmorphism_radius">Blur radius</string>
+    <string name="setting_subtitle_glassmorphism_noise">Noise factor</string>
+    <string name="setting_title_packageManager">Package manager</string>
+    <string name="setting_subtitle_packageManager">Select package manager type</string>
+    <string name="setting_title_rootMode">Root mode</string>
+    <string name="setting_subtitle_rootMode">Enables functions that require root permissions to work</string>
+    <string name="setting_title_checkUpdates">Check updates</string>
+    <string name="setting_subtitle_checkUpdate">Check for updates when the application starts</string>
+    <string name="setting_title_checkUpdatesChannel">Update channel</string>
+    <string name="setting_subtitle_checkUpdateChannel">Source of application updates</string>
+    <string name="setting_title_downloadMode">Download mode</string>
+    <string name="setting_subtitle_downloadMode">Choosing the algorithm for file downloading</string>
+
+    <string name="updatesChannel_stable">Stable</string>
+    <string name="updatesChannel_beta">Beta</string>
+    <string name="updatesChannel_nightly">Canary</string>
+
+    <string name="setting_title_catalogs">Catalogs</string>
+    <string name="setting_sourceUrl_label" translatable="false">Url</string>
+    <string name="setting_sourceUrl_placeholder" translatable="false">https://</string>
+
+    <string name="setting_title_checkAppsUpdates">Check app updates</string>
+    <string name="setting_subtitle_checkAppsUpdates">Check for updates in the added catalogs in the background</string>
+
+    <string name="theme_system">System theme</string>
+    <string name="theme_dark">Dark theme</string>
+    <string name="theme_light">Light theme</string>
+
+    <string name="packageManager_nonRoot">Non-root package manager</string>
+    <string name="packageManager_root">Root package manage</string>
+    <string name="packageManager_shizuku">Shizuku package manage</string>
+
+    <string name="downloadMode_singleTry">Single try</string>
+    <string name="downloadMode_multipleTries">Multiple tries</string>
+    <string name="downloadMode_infinityTries">Infinity tries</string>
+    <string name="downloadMode_triesCount">Number of tries</string>
+
+    <!--  About  -->
+    <string name="about_group_app">Application</string>
+    <string name="about_group_developer">Developer</string>
+    <string name="about_title_tg_group">Telegram group</string>
+    <string name="about_title_source_code">Source code on GutHub</string>
+    <string name="about_title_profile_tg">Telegram profile</string>
+    <string name="about_title_profile_4pda">4pda profile</string>
+    <string name="about_title_profile_github">GitHub profile</string>
+    <string name="about_title_support">Sponsor developer</string>
+    <string name="about_info_developer">Developed by Blays</string>
+
+    <!--  App page  -->
+    <string name="app_page_tab_description">Description</string>
+    <string name="app_page_tab_nonRoot" translatable="false">Non-root</string>
+    <string name="app_page_tab_root" translatable="false">Root</string>
+    
+    <!--  Dialogs  -->
+    <string name="dialog_shizuku_action_download">Download Shizuku</string>
+    <string name="dialog_shizuku_action_open">Open Shizuku</string>
+    <string name="dialog_clearAll_title">Delete all files?</string>
+
+    <!--  Landing  -->
+    <string name="landing_title">Setup</string>
+    <string name="landing_permission_granted">Granted</string>
+    <string name="landing_permission_notGranted">Not granted, click to allow</string>
+    <string name="landing_permission_storage">Access to all files</string>
+    <string name="landing_permission_notifications">Send notifications</string>
+    <string name="landing_permission_installApps">Install unknown apps</string>
+    <string name="landing_permission_batteryOptimization">Battery optimization</string>
+    <string name="landing_setting_enabled">Enabled</string>
+    <string name="landing_setting_notEnabled">Not enabled, click to enable</string>
+    <string name="battery_optimized">Optimized, click to disable</string>
+    <string name="battery_notOptimized">Not optimized</string>
+
+    <!--  Errors  -->
+    <string name="error_unknown">Something went wrong</string>
+    <string name="error_notLoaded_formatted">An error occurred while loading, the reason is:\u00a0%1$s</string>
+    <string name="error_formatted">Error:\u00a0%1$s</string>
+</resources>

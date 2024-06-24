@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Install_progress_starting">Starting...</string>
+    <string name="Install_progress_checkModuleExists">Проверка существования модуля</string>
+    <string name="Install_progress_generateServiceSh">Генерация service.sh</string>
+    <string name="Install_progress_generateModuleProp">Создание module.prop</string>
+    <string name="Install_progress_updateModule">Обновление модуля</string>
+    <string name="Install_progress_createAppFolder">Создание папки приложения</string>
+    <string name="Install_progress_copyApk">Копирование apk в папку модуля</string>
+    <string name="Install_progress_writeModuleFiles">Запись файлов модуля</string>
+    <string name="Install_complete">Установка модуля завершена</string>
+    <string name="notification_text_versionsWarning">Версия установленного оригинального приложения с именем пакета %1$s отличается от версии мода.
+Установите версию с кодом %2$d или переустановить мод через менеджер.</string>
+</resources>

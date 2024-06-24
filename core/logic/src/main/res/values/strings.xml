@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="textCopied">Text copied to clipboard</string>
+    <string name="unknown_name">Unknown name</string>
+    <string name="unknown_owner">Unknown owner</string>
+    <string name="catalog_exists_formatted">Catalog with url: %1$s already exists</string>
+    <string name="unable_disable_catalog">The catalog cannot be disabled. At least one catalog must be active.</string>
+    <string name="downloadStarted">Download started</string>
+
+    <string name="action_reboot">Reboot</string>
+    <string name="action_openInBrowser">Open in browser</string>
+
+    <string name="app_installer_notification_channel_name">App installer</string>
+    <string name="app_installer_notification_channel_description">Notifications about app install process</string>
+
+    <string name="checkUpdates_notificationChannel_name">Check updates</string>
+    <string name="checkUpdates_notificationChannel_description">Notifications about new available versions</string>
+
+    <string name="checkUpdatesProcess">Check updates…</string>
+    <string name="update_available_title">Update available:</string>
+    <string name="version_formatted">Version: %1$s</string>
+    <string name="nonRoot_version_formatted">Non-root version: %1$s</string>
+    <string name="root_version_formatted">Root version: %1$s</string>
+
+    <string name="downgradeWarn_title">Downgrade version</string>
+    <string name="downgradeWarn_message">The requested version is lower than the installed version. Android patches are required to downgrade the version.</string>
+
+    <string name="app_installer_dialog_title">App install</string>
+    <string name="app_installer_dialog_success">App has been installed</string>
+    <string name="app_installer_dialog_error_formatted">Failed to install app. Reason: %1$s</string>
+
+    <string name="app_uninstaller_dialog_title">App uninstall</string>
+    <string name="app_uninstaller_dialog_success">App has been uninstalled</string>
+    <string name="app_uninstaller_dialog_error_formatted">Failed to uninstall app.\nReason: %1$s</string>
+
+    <string name="module_installer_dialog_title">Module install</string>
+    <string name="module_installer_dialog_success">Module has been installed.\nReboot not required. If you experience any issues, please restart the device manually.</string>
+    <string name="module_installer_dialog_error_formatted">Failed to install module. Reason: %1$s</string>
+
+    <string name="shizuku_official_site" translatable="false">https://shizuku.rikka.app/</string>
+    <string name="shizuku_dialog_notInstalled_title">Shizuku not installed</string>
+    <string name="shizuku_dialog_notInstalled_message">Shizuku PackageManager requires Shizuku installed.\nInstall it or disable Shizuku mode.</string>
+    <string name="shizuku_dialog_notRunning_title">Shizuku not running</string>
+    <string name="shizuku_dialog_notRunning_message">This mode requires the Shizuku service to be running.\nGo to the Shizuku app to enable it.</string>
+
+    <string name="initializing" tools:ignore="TypographyEllipsis">Initializing...</string>
+    <string name="awaitingDownloads" tools:ignore="TypographyEllipsis">Awaiting file download...</string>
+
+    <string name="module_creating_formatted">Creating %1$s module</string>
+    <string name="creatingModule" tools:ignore="TypographyEllipsis">Creating module...</string>
+    <string name="creatingModule_error">Creating failed because download failed or cancelled</string>
+    <string name="creatingModule_success">Module install success</string>
+    <string name="creatingModule_failed">Module install failed</string>
+
+    <string name="app_installing_formatted">%1$s installation</string>
+    <string name="app_installing_startInstallation">Start installation</string>
+    <string name="app_installing_success">App install success</string>
+    <string name="app_installing_failed">App install failed</string>
+    <string name="creatingModule_downloadError">Installation failed because download failed or cancelled</string>
+
+    <string name="error_readme_not_loaded">Error: Can\'t load readme</string>
+    <string name="error_changelog_not_found">Error: changelog not found</string>
+    <string name="error_root_not_granted">Error: root permission not granted.</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="error_openInBrowser">Failed to open in browser</string>
+    <string name="error_cantParseProperties">Can\'t parse properties</string>
+    <string name="error_invalidUrl">Invalid url</string>
+</resources>
