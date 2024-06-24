@@ -39,7 +39,7 @@ android {
         it.buildConfigField(
             "String",
             "VERSION_NAME",
-            "\"${libs.versions.projectVersionName.get()}${libs.versions.projectVersionNameSuffix.get()}\""
+            "\"${libs.versions.projectVersionName.get()}\""
         )
     }
     compileOptions {

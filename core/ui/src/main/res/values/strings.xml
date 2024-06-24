@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">BHub</string>
+    <string name="app_name_full" translatable="false">Blays Hub</string>
 
     <!--  Simple  -->
     <string name="files">Files</string>
@@ -109,7 +109,7 @@
 
     <!--  Links  -->
     <string name="link_tg_group" translatable="false">https://t.me/BHub_app</string>
-    <string name="link_github_repo" translatable="false">null</string>
+    <string name="link_github_repo" translatable="false">https://github.com/B1ays/BHub</string>
     <string name="link_developer_tg" translatable="false">https://t.me/B1ays</string>
     <string name="link_developer_4pda" translatable="false">https://4pda.to/forum/index.php?showuser=7576426</string>
     <string name="link_developer_github" translatable="false">https://github.com/B1ays</string>

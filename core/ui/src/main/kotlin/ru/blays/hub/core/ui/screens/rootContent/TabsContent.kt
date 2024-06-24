@@ -192,18 +192,6 @@ fun TabsContent(
                     Text(text = stringResource(id = R.string.action_ok))
                 }
             },
-            dismissButton = {
-                /*TextButton(
-                    onClick = {
-                        dialogComponent.sendIntent(TabsComponent.ModuleInstallDialogActions.Reboot)
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                ) {
-                    Text(text = stringResource(id = R.string.action_reboot))
-                }*/
-            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_boxes),

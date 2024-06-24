@@ -1,7 +1,6 @@
 [versions]
 #Project versions
 projectVersionName = "1.0"
-projectVersionNameSuffix = "-alpha1"
 projectVersionCode = "1"
 
 #Dependencies versions

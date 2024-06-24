@@ -73,8 +73,11 @@ fun AppsContent(component: AppsComponent) {
     Scaffold(
         topBar = {
             CollapsingToolbar(
-                collapsingTitle = CollapsingTitle.large(
-                    titleText = stringResource(id = R.string.app_name)
+                collapsingTitle = CollapsingTitle(
+                    stringResource(id = R.string.app_name_full),
+                    MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
                 ),
             )
         },

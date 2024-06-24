@@ -81,7 +81,7 @@ private fun Info() {
         )
         VerticalSpacer(10.dp)
         Text(
-            text = stringResource(R.string.app_name),
+            text = stringResource(R.string.app_name_full),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold
         )

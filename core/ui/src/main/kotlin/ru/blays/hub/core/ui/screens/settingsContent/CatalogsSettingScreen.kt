@@ -1,8 +1,6 @@
 package ru.blays.hub.core.ui.screens.settingsContent
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -171,8 +169,7 @@ fun CatalogsSettingScreen(
             onDismissRequest = dialogComponent::close,
             properties = DialogProperties(
                 dismissOnClickOutside = false
-            ),
-            modifier = Modifier.animateContentSize(spring())
+            )
         ) {
             AddCatalogDialog(component = dialogComponent)
         }
