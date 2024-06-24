@@ -197,11 +197,10 @@ private fun Tabs(
                 onClick = { onPageSelect(index) }
             ) {
                 Text(
-                    text = if(singleVersionType) {
-                        stringResource(R.string.versions)
-                    } else {
-                        getTabName(tab = child.configuration)
-                    },
+                    text = getTabName(
+                        singleVersionType = singleVersionType,
+                        tab = child.configuration
+                    ),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
@@ -876,11 +875,22 @@ private fun ChangelogPlaceholder(
 
 @NonRestartableComposable
 @Composable
-private fun getTabName(tab: TabsConfiguration): String {
+private fun getTabName(
+    singleVersionType: Boolean,
+    tab: TabsConfiguration
+): String {
     return when (tab) {
         TabsConfiguration.Description -> stringResource(id = R.string.app_page_tab_description)
-        is TabsConfiguration.NonRoot -> stringResource(id = R.string.app_page_tab_nonRoot)
-        is TabsConfiguration.Root -> stringResource(id = R.string.app_page_tab_root)
+        is TabsConfiguration.NonRoot -> if(singleVersionType) {
+            stringResource(R.string.versions)
+        } else {
+            stringResource(id = R.string.app_page_tab_nonRoot)
+        }
+        is TabsConfiguration.Root -> if(singleVersionType) {
+            stringResource(R.string.versions)
+        } else {
+            stringResource(id = R.string.app_page_tab_root)
+        }
     }
 }
 
