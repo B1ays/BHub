@@ -18,7 +18,7 @@ android {
         targetSdk = 34
         versionCode = libs.versions.projectVersionCode.get().toInt()
         versionName = libs.versions.projectVersionName.get()
-        versionNameSuffix = libs.versions.projectVersionNameSuffix.get()
+        //versionNameSuffix = libs.versions.projectVersionNameSuffix.get()
         
         resourceConfigurations += listOf("en", "ru")
     }
