@@ -26,8 +26,8 @@ import kotlinx.serialization.Serializable
 data class AppModel(
     @SerialName("Title")
     val title: String,
-    @SerialName("Description")
-    val shortDescription: String,
+    @SerialName("Description_locales")
+    val descriptionLocales: Map<String, String>,
     @SerialName("Info")
     val appInfo: AppInfoModel? = null,
     @SerialName("Icon href")

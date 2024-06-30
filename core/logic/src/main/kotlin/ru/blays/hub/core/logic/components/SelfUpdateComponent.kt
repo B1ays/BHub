@@ -153,7 +153,7 @@ class SelfUpdateComponent(
         val installedVersionCode = packageManager.getVersionCode(context.packageName)
             .getValueOrNull()
             ?: return false
-        return installedVersionCode < availableVersionCode
+        return true //installedVersionCode < availableVersionCode
     }
 
     private fun UpdateInfoModel.toUIModel(changelog: String): AppUpdateInfoModel = AppUpdateInfoModel(

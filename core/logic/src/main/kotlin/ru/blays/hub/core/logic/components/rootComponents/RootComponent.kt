@@ -41,9 +41,9 @@ import ru.blays.hub.core.preferences.proto.ThemeSettings
 @Stable
 class RootComponent internal constructor(
     componentContext: ComponentContext,
-    private val initialConfiguration: Configuration = Configuration.Tabs
+    private val initialConfiguration: Configuration = Configuration.Tabs,
 ) : ComponentContext by componentContext, KoinComponent {
-    constructor(componentContext: ComponentContext): this(
+    constructor(componentContext: ComponentContext) : this(
         componentContext,
         Configuration.Tabs
     )
@@ -68,11 +68,12 @@ class RootComponent internal constructor(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext
+        childContext: ComponentContext,
     ): Child = when (configuration) {
         is Configuration.Tabs -> Child.Tabs(
             TabsComponent(childContext)
         )
+
         is Configuration.Splash -> Child.Splash
         is Configuration.RootDialog -> Child.RootDialog(
             DialogsComponent(
@@ -92,7 +93,7 @@ class RootComponent internal constructor(
     }
 
     private fun onShizukuStateChange(
-        state: ShizukuState
+        state: ShizukuState,
     ) {
         when (state) {
             is ShizukuState.NotRunning -> {
@@ -109,6 +110,7 @@ class RootComponent internal constructor(
                                 DialogsComponent.Intent.AddNewDialog(configuration)
                             )
                         }
+
                         else -> {
                             stackNavigation.replaceCurrent(
                                 Configuration.RootDialog(configuration)
@@ -117,6 +119,7 @@ class RootComponent internal constructor(
                     }
                 }
             }
+
             else -> Unit
         }
     }
@@ -149,7 +152,7 @@ class RootComponent internal constructor(
                     !sendNotificationsGranted ||
                     !installRequestGranted ||
                     !batteryNotOptimized
-                    ) {
+                ) {
                     add(DialogsComponent.Configuration.Setup)
                 }
                 if (settingsRepository.pmType == PMType.SHIZUKU) {
@@ -176,23 +179,25 @@ class RootComponent internal constructor(
                 }
             }
 
-            if(dialogConfigurations.isNotEmpty()) {
+            if (dialogConfigurations.isNotEmpty()) {
                 stackNavigation.replaceCurrent(
                     Configuration.RootDialog(dialogConfigurations)
                 )
             } else {
-                if(settingsRepository.pmType == PMType.SHIZUKU) {
-                    if(shizukuStateValue is ShizukuState.Running) {
-                        if(shizukuStateValue.permissionGranted) {
+                if (settingsRepository.pmType == PMType.SHIZUKU) {
+                    if (shizukuStateValue is ShizukuState.Running) {
+                        if (shizukuStateValue.permissionGranted) {
                             stackNavigation.replaceCurrent(initialConfiguration)
                         } else {
                             coroutineScope.launch {
                                 shizukuStateFlow.collectWhile { shizukuState ->
-                                    when(shizukuState) {
+                                    when (shizukuState) {
                                         is ShizukuState.Running -> {
-                                            if(shizukuState.permissionGranted) {
+                                            if (shizukuState.permissionGranted) {
                                                 handler.post {
-                                                    stackNavigation.replaceCurrent(initialConfiguration)
+                                                    stackNavigation.replaceCurrent(
+                                                        initialConfiguration
+                                                    )
                                                 }
                                                 false
                                             } else {
@@ -200,6 +205,7 @@ class RootComponent internal constructor(
                                                 true
                                             }
                                         }
+
                                         else -> true
                                     }
                                 }
@@ -241,7 +247,8 @@ class RootComponent internal constructor(
         data object Splash : Configuration()
 
         @Serializable
-        data class RootDialog(val configurations: List<DialogsComponent.Configuration>) : Configuration() {
+        data class RootDialog(val configurations: List<DialogsComponent.Configuration>) :
+            Configuration() {
             constructor(configuration: DialogsComponent.Configuration) : this(listOf(configuration))
         }
     }

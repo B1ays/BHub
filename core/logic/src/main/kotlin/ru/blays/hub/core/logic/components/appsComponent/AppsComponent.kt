@@ -27,12 +27,14 @@ import ru.blays.hub.core.data.repositories.CatalogsRepository
 import ru.blays.hub.core.data.room.entities.CatalogEntity
 import ru.blays.hub.core.logic.APPS_HREF
 import ru.blays.hub.core.logic.R
+import ru.blays.hub.core.logic.data.LocalizationsMap
 import ru.blays.hub.core.logic.data.models.AppCardModel
 import ru.blays.hub.core.logic.data.models.VersionType
 import ru.blays.hub.core.logic.data.models.VersionType.NonRoot
 import ru.blays.hub.core.logic.data.models.VersionType.Root
 import ru.blays.hub.core.logic.data.realType
 import ru.blays.hub.core.logic.utils.VersionName.Companion.toVersionName
+import ru.blays.hub.core.logic.utils.currentLanguage
 import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.models.AppModel
@@ -177,9 +179,11 @@ class AppsComponent(
                 }
                 val updateAvailable = hasUpdates(versions)
 
+                val localizationsMap = LocalizationsMap(app.descriptionLocales)
+
                 AppCardModel(
                     title = app.title,
-                    description = app.shortDescription,
+                    description = localizationsMap.getOrDefault(context.currentLanguage),
                     iconUrl = fullUrlString(sourceUrl, app.iconHref),
                     versions = versions,
                     updateAvailable = updateAvailable,
