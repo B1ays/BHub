@@ -24,7 +24,7 @@ class PackageManagerImpl(
     override suspend fun getVersionCode(packageName: String): PackageManagerResult<Int> = coroutineScope {
         return@coroutineScope try {
             val dumpsys = Shell.cmd("dumpsys package $packageName | grep $VERSION_CODE_KEYWORD").awaitOutputOrThrow()
-            val versionCode = dumpsys.removePrefix(VERSION_CODE_KEYWORD).substringBefore("minSdk").toInt()
+            val versionCode = dumpsys.substringBefore("minSdk").trim().removePrefix(VERSION_CODE_KEYWORD).toInt()
             PackageManagerResult.Success(versionCode)
         } catch (e: SuException) {
             PackageManagerResult.Error(
