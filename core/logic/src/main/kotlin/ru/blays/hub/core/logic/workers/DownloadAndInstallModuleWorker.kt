@@ -23,7 +23,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.downloader.repository.DownloadRepository
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.logic.ACTION_MODULE_INSTALL
 import ru.blays.hub.core.logic.FLAG_REINSTALL
@@ -45,7 +45,7 @@ import kotlin.random.Random
 class DownloadAndInstallModuleWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val downloadRepository: DownloadRepository,
+    private val downloadRepository: DownloadsRepository,
     private val moduleManager: ModuleManager,
     private val workManager: WorkManager
 ) : CoroutineWorker(appContext, params), KoinComponent {

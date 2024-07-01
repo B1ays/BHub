@@ -96,9 +96,16 @@ fun SettingsContent(component: SettingsComponent) {
                 }
             }
             item {
-                CommonSetting {
+                MainSetting {
                     component.onOutput(
                         SettingsComponent.Output.MainSettings
+                    )
+                }
+            }
+            item {
+                SelfUpdateSetting {
+                    component.onOutput(
+                        SettingsComponent.Output.SelfUpdateSettings
                     )
                 }
             }
@@ -133,7 +140,7 @@ private fun CatalogsSetting(
 }
 
 @Composable
-private fun CommonSetting(
+private fun MainSetting(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -142,5 +149,18 @@ private fun CommonSetting(
         onClick = onClick,
         title = stringResource(R.string.settings_group_main),
         icon = painterResource(R.drawable.ic_sliders)
+    )
+}
+
+@Composable
+private fun SelfUpdateSetting(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    SettingsClickableCard(
+        modifier = modifier,
+        onClick = onClick,
+        title = stringResource(R.string.settings_group_selfUpdate),
+        icon = painterResource(R.drawable.ic_time_forward)
     )
 }

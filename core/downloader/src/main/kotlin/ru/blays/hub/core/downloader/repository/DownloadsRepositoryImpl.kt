@@ -21,12 +21,12 @@ import ru.blays.hub.utils.workerdsl.workData
 
 internal class DownloadsRepositoryImpl(
     private val workManager: WorkManager
-): DownloadRepository {
+): DownloadsRepository {
     private val _tasks: MutableList<DownloadTask> = mutableListOf()
 
-    private val _onTaskAddedListeners: MutableSet<DownloadRepository.OnTaskAddedListener> = mutableSetOf()
-    private val _onTaskRemovedListeners: MutableSet<DownloadRepository.OnTaskRemovedListener> = mutableSetOf()
-    private val _onTaskFinishedListeners: MutableSet<DownloadRepository.OnTaskFinishedListener> = mutableSetOf()
+    private val _onTaskAddedListeners: MutableSet<DownloadsRepository.OnTaskAddedListener> = mutableSetOf()
+    private val _onTaskRemovedListeners: MutableSet<DownloadsRepository.OnTaskRemovedListener> = mutableSetOf()
+    private val _onTaskFinishedListeners: MutableSet<DownloadsRepository.OnTaskFinishedListener> = mutableSetOf()
 
     override val tasks: List<DownloadTask>
         get() = _tasks.toList()
@@ -102,24 +102,24 @@ internal class DownloadsRepositoryImpl(
         _tasks -= task
     }
 
-    override operator fun plusAssign(listener: DownloadRepository.OnTaskAddedListener) {
+    override operator fun plusAssign(listener: DownloadsRepository.OnTaskAddedListener) {
         _onTaskAddedListeners.add(listener)
     }
-    override operator fun minusAssign(listener: DownloadRepository.OnTaskAddedListener) {
+    override operator fun minusAssign(listener: DownloadsRepository.OnTaskAddedListener) {
         _onTaskAddedListeners.remove(listener)
     }
 
-    override operator fun plusAssign(listener: DownloadRepository.OnTaskRemovedListener) {
+    override operator fun plusAssign(listener: DownloadsRepository.OnTaskRemovedListener) {
         _onTaskRemovedListeners.add(listener)
     }
-    override operator fun minusAssign(listener: DownloadRepository.OnTaskRemovedListener) {
+    override operator fun minusAssign(listener: DownloadsRepository.OnTaskRemovedListener) {
         _onTaskRemovedListeners.remove(listener)
     }
 
-    override operator fun plusAssign(listener: DownloadRepository.OnTaskFinishedListener) {
+    override operator fun plusAssign(listener: DownloadsRepository.OnTaskFinishedListener) {
         _onTaskFinishedListeners.add(listener)
     }
-    override operator fun minusAssign(listener: DownloadRepository.OnTaskFinishedListener) {
+    override operator fun minusAssign(listener: DownloadsRepository.OnTaskFinishedListener) {
         _onTaskFinishedListeners.remove(listener)
     }
 

@@ -18,7 +18,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.mp.KoinPlatform.getKoin
 import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.downloader.repository.DownloadRepository
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.logic.FLAG_REINSTALL
 import ru.blays.hub.core.logic.R
 import ru.blays.hub.core.logic.utils.collectWhile
@@ -34,7 +34,7 @@ import kotlin.random.Random
 internal class DownloadAndInstallWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val downloadRepository: DownloadRepository
+    private val downloadRepository: DownloadsRepository
 ) : CoroutineWorker(
     appContext,
     params
@@ -107,7 +107,7 @@ internal class DownloadAndInstallWorker(
 
                     val file = File(downloadRequest.filePath)
                     val installResult = packageManager.installApp(file)
-                    success = when (installResult) {
+                    success = when(installResult) {
                         is PackageManagerResult.Error -> false
                         is PackageManagerResult.Success -> true
                     }

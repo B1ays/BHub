@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import ru.blays.hub.core.downloader.DownloadTask
-import ru.blays.hub.core.downloader.repository.DownloadRepository
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.logic.data.models.ApkFile
 import ru.blays.hub.core.logic.data.models.ApkInfo
 import ru.blays.hub.core.logic.data.realType
@@ -45,7 +45,7 @@ import java.io.File
 class DownloadsListComponent(
     componentContext: ComponentContext
 ): ComponentContext by componentContext, KoinComponent {
-    private val downloadRepository: DownloadRepository by inject()
+    private val downloadsRepository: DownloadsRepository by inject()
     private val settingsRepository: SettingsRepository by inject()
 
     private val context: Context by inject()
@@ -182,7 +182,7 @@ class DownloadsListComponent(
     }
 
     private suspend fun loadExistingTasks() {
-        val task = downloadRepository.tasks.map { it.toTask() }
+        val task = downloadsRepository.tasks.map { it.toTask() }
         _state.update {
             it.copy(tasks = task)
         }
@@ -228,7 +228,7 @@ class DownloadsListComponent(
     )
 
     init {
-        val onTaskAddedListener = DownloadRepository.OnTaskAddedListener { task ->
+        val onTaskAddedListener = DownloadsRepository.OnTaskAddedListener { task ->
             _state.update { oldState ->
                 oldState.copy(
                     tasks = buildList {
@@ -238,14 +238,14 @@ class DownloadsListComponent(
                 )
             }
         }
-        val onTaskRemovedListener = DownloadRepository.OnTaskRemovedListener { task ->
+        val onTaskRemovedListener = DownloadsRepository.OnTaskRemovedListener { task ->
             _state.update { oldState ->
                 oldState.copy(
                     tasks = oldState.tasks.filterNot { it.filePath == task.filePath }
                 )
             }
         }
-        val onTaskFinishedListener = DownloadRepository.OnTaskFinishedListener { task ->
+        val onTaskFinishedListener = DownloadsRepository.OnTaskFinishedListener { task ->
             scope.launch {
                 _state.update { oldState ->
                     oldState.copy(
@@ -262,14 +262,14 @@ class DownloadsListComponent(
                 loadExistingFiles()
             }
 
-            downloadRepository += onTaskAddedListener
-            downloadRepository += onTaskRemovedListener
-            downloadRepository += onTaskFinishedListener
+            downloadsRepository += onTaskAddedListener
+            downloadsRepository += onTaskRemovedListener
+            downloadsRepository += onTaskFinishedListener
         }
         lifecycle.doOnDestroy {
-            downloadRepository -= onTaskAddedListener
-            downloadRepository -= onTaskRemovedListener
-            downloadRepository -= onTaskFinishedListener
+            downloadsRepository -= onTaskAddedListener
+            downloadsRepository -= onTaskRemovedListener
+            downloadsRepository -= onTaskFinishedListener
             scope.cancel()
         }
     }

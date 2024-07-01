@@ -18,5 +18,6 @@ class SettingsComponent(
         data object ThemeSettings: Output()
         data object CatalogsSetting: Output()
         data object MainSettings: Output()
+        data object SelfUpdateSettings: Output()
     }
 }

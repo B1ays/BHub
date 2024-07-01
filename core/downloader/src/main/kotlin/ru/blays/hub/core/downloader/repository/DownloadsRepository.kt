@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import ru.blays.hub.core.downloader.DownloadRequest
 import ru.blays.hub.core.downloader.DownloadTask
 
-interface DownloadRepository {
+interface DownloadsRepository {
     val tasks: List<DownloadTask>
 
     fun download(request: DownloadRequest): Flow<WorkInfo>

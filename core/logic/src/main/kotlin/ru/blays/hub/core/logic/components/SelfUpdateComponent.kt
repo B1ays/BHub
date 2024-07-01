@@ -3,19 +3,19 @@ package ru.blays.hub.core.logic.components
 import android.content.Context
 import androidx.work.WorkManager
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.router.slot.SlotNavigation
-import com.arkivanov.decompose.router.slot.activate
-import com.arkivanov.decompose.router.slot.childSlot
-import com.arkivanov.decompose.router.slot.dismiss
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import ru.blays.hub.core.downloader.DownloadMode
 import ru.blays.hub.core.downloader.DownloadRequest
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.logic.R
 import ru.blays.hub.core.logic.data.LocalizedMessage
@@ -36,11 +36,13 @@ import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
 
 class SelfUpdateComponent(
-    componentContext: ComponentContext
+    componentContext: ComponentContext,
+    checkOnCreate: Boolean
 ): ComponentContext by componentContext, KoinComponent {
     private val settingsRepository: SettingsRepository by inject()
     private val updatesRepository: AppUpdatesRepository by inject()
     private val networkRepository: NetworkRepository by inject()
+    private val downloadsRepository: DownloadsRepository by inject()
     private val context: Context by inject()
 
     private val packageManager: PackageManager
@@ -54,48 +56,40 @@ class SelfUpdateComponent(
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val dialogNavigation = SlotNavigation<SelfUpdateDialogConfig>()
+    private val _state: MutableStateFlow<State> = MutableStateFlow(State.Idle)
 
-    val dialog = childSlot(
-        source = dialogNavigation,
-        initialConfiguration = { null },
-        serializer = SelfUpdateDialogConfig.serializer()
-    ) { configuration, childContext ->
-        SelfUpdateDialogComponent(
-            componentContext = childContext,
-            updateInfo = configuration.updateInfo,
-            onIntent = ::onIntent,
-            onOutput = ::onOutput
+    val state: StateFlow<State> = _state.asStateFlow()
 
-        )
-    }
-
-    private fun onIntent(intent: Intent) {
+    fun sendIntent(intent: Intent) {
         when(intent) {
             is Intent.Refresh -> refresh()
-            is Intent.UpdateApp -> {
-                update(intent.updateInfo)
-                dialogNavigation.dismiss()
-            }
+            is Intent.UpdateApp -> update(intent.updateInfo)
         }
     }
 
-    private fun onOutput(output: Output) {
+    fun onOutput(output: Output) {
         when(output) {
-            Output.Close -> dialogNavigation.dismiss()
+            is Output.Close -> _state.update { State.Idle }
         }
     }
 
     private fun refresh() {
         coroutineScope.launch {
-            val result: NetworkResult<UpdateInfoModel> = updatesRepository.getUpdateInfo(updateChannelUrl)
-            when(result) {
+            _state.update { State.Loading }
+
+            when(
+                val result = updatesRepository.getUpdateInfo(updateChannelUrl)
+            ) {
                 is NetworkResult.Failure -> {
                     Logger.e(TAG, result.error)
+                    _state.update {
+                        State.Error(
+                            result.error.message ?: context.getString(R.string.unknown_error)
+                        )
+                    }
                 }
                 is NetworkResult.Success -> {
                     val resultModel = result.data
-                    println(resultModel)
 
                     val changelogResult = networkRepository
                         .openStream(resultModel.changelogUrl)
@@ -122,9 +116,11 @@ class SelfUpdateComponent(
                     }
 
                     if(checkUpdateAvailable(resultModel.versionCode)) {
-                        dialogNavigation.activate(
-                            SelfUpdateDialogConfig(updateInfo)
-                        )
+                        _state.update {
+                            State.Available(updateInfo)
+                        }
+                    } else {
+                        _state.update { State.NotAvailable }
                     }
                 }
             }
@@ -147,13 +143,15 @@ class SelfUpdateComponent(
         )
         val workManager: WorkManager = get()
         workManager.enqueue(installRequest)
+        _state.update { State.Downloading }
     }
 
     private suspend fun checkUpdateAvailable(availableVersionCode: Int): Boolean {
-        val installedVersionCode = packageManager.getVersionCode(context.packageName)
+        val installedVersionCode = packageManager
+            .getVersionCode(context.packageName)
             .getValueOrNull()
             ?: return false
-        return true //installedVersionCode < availableVersionCode
+        return installedVersionCode < availableVersionCode
     }
 
     private fun UpdateInfoModel.toUIModel(changelog: String): AppUpdateInfoModel = AppUpdateInfoModel(
@@ -165,7 +163,7 @@ class SelfUpdateComponent(
     )
 
     init {
-        if(settingsRepository.checkUpdates) {
+        if(settingsRepository.checkUpdates && checkOnCreate) {
             refresh()
         }
     }
@@ -179,25 +177,16 @@ class SelfUpdateComponent(
         data object Close: Output()
     }
 
+    sealed class State {
+        data object Idle: State()
+        data object Loading: State()
+        data class Error(val message: String): State()
+        data class Available(val updateInfo: AppUpdateInfoModel): State()
+        data object NotAvailable: State()
+        data object Downloading: State()
+    }
+
     companion object {
         private const val TAG = "SelfUpdateComponent"
-    }
-}
-
-@Serializable
-@JvmInline
-value class SelfUpdateDialogConfig(val updateInfo: AppUpdateInfoModel)
-
-class SelfUpdateDialogComponent(
-    componentContext: ComponentContext,
-    val updateInfo: AppUpdateInfoModel,
-    private val onIntent: (SelfUpdateComponent.Intent) -> Unit,
-    private val onOutput: (SelfUpdateComponent.Output) -> Unit
-): ComponentContext by componentContext {
-    fun sendIntent(intent: SelfUpdateComponent.Intent) {
-        onIntent.invoke(intent)
-    }
-    fun onOutput(output: SelfUpdateComponent.Output) {
-        onOutput.invoke(output)
     }
 }

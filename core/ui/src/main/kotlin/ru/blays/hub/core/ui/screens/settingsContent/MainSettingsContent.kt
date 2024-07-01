@@ -126,26 +126,6 @@ fun MainSettingsContent(
                     }
                 )
             }
-            item {
-                CheckUpdatesSetting(
-                    value = component.checkUpdatesFlow.collectAsState().value,
-                    onValueChange = { newValue ->
-                        component.setValue {
-                            checkUpdates = newValue
-                        }
-                    }
-                )
-            }
-            item {
-                UpdatesChannelSetting(
-                    value = component.updatesChannelFlow.collectAsState().value,
-                    onValueChange = { newValue ->
-                        component.setValue {
-                            updateChannel = newValue
-                        }
-                    }
-                )
-            }
         }
     }
 }

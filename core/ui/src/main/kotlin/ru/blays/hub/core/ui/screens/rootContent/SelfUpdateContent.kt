@@ -16,12 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
-import ru.blays.hub.core.logic.components.SelfUpdateComponent
-import ru.blays.hub.core.logic.components.SelfUpdateDialogComponent
 import ru.blays.hub.core.logic.data.models.AppUpdateInfoModel
 import ru.blays.hub.core.logic.utils.openInBrowser
 import ru.blays.hub.core.ui.R
@@ -31,8 +30,11 @@ import ru.blays.hub.core.ui.values.DefaultPadding
 
 context(ColumnScope)
 @Composable
-fun SelfUpdateContent(component: SelfUpdateDialogComponent) {
-    val updateInfo = component.updateInfo
+fun SelfUpdateDialogContent(
+    updateInfo: AppUpdateInfoModel,
+    onUpdate: (AppUpdateInfoModel) -> Unit,
+    onClose: () -> Unit
+) {
     Header()
     VerticalSpacer(height = 4.dp)
     HorizontalDivider(
@@ -44,21 +46,48 @@ fun SelfUpdateContent(component: SelfUpdateDialogComponent) {
     VerticalSpacer(height = 4.dp)
     ChangelogContent(
         modifier = Modifier.weight(1F, false),
+        containerColor = MaterialTheme.colorScheme.background,
         changelog = updateInfo.changelog
     )
     VerticalSpacer(height = 4.dp)
     Actions(
-        onCancel = {
-            component.onOutput(
-                SelfUpdateComponent.Output.Close
-            )
-        },
-        onUpdate = {
-            component.sendIntent(
-                SelfUpdateComponent.Intent.UpdateApp(updateInfo)
-            )
-        }
+        onCancel = onClose,
+        onUpdate = { onUpdate(updateInfo) }
     )
+    VerticalSpacer(height = 4.dp)
+}
+
+context(ColumnScope)
+@Composable
+fun SelfUpdateContent(
+    updateInfo: AppUpdateInfoModel,
+    onUpdate: (AppUpdateInfoModel) -> Unit
+) {
+    Header()
+    VerticalSpacer(height = 4.dp)
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth(0.9F)
+            .align(Alignment.CenterHorizontally))
+    VerticalSpacer(height = 4.dp)
+    Info(updateInfo = updateInfo)
+    VerticalSpacer(height = 4.dp)
+    ChangelogContent(
+        modifier = Modifier.weight(1F),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        changelog = updateInfo.changelog
+    )
+    VerticalSpacer(height = 10.dp)
+    Button(
+        modifier = Modifier.align(Alignment.End),
+        onClick = { onUpdate(updateInfo) },
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        AutoscaleText(
+            text = stringResource(id = R.string.action_update),
+            maxLines = 1
+        )
+    }
     VerticalSpacer(height = 4.dp)
 }
 
@@ -106,6 +135,8 @@ private fun Info(
 @Composable
 private fun ChangelogContent(
     modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    contentColor: Color = LocalContentColor.current,
     changelog: String
 ) {
     val context = LocalContext.current
@@ -114,7 +145,7 @@ private fun ChangelogContent(
             .padding(DefaultPadding.CardDefaultPadding)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = containerColor,
     ) {
         MarkdownText(
             modifier = Modifier.padding(12.dp),
@@ -122,7 +153,7 @@ private fun ChangelogContent(
             linkColor = MaterialTheme.colorScheme.primary,
             onLinkClicked = context::openInBrowser,
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = LocalContentColor.current
+                color = contentColor
             )
         )
     }
@@ -138,7 +169,7 @@ private fun Actions(
         modifier = modifier
             .padding(DefaultPadding.CardDefaultPadding)
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End)
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
     ) {
         OutlinedButton(
             onClick = onCancel,

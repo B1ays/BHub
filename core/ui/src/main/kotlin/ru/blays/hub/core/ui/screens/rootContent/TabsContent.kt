@@ -1,31 +1,24 @@
 package ru.blays.hub.core.ui.screens.rootContent
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import ru.blays.hub.core.logic.components.SelfUpdateComponent
 import ru.blays.hub.core.logic.components.rootComponents.TabsComponent
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.bubbleTabBar.BubbleTabBar
@@ -41,7 +35,6 @@ import ru.blays.hub.core.ui.elements.bubbleTabBar.BubbleTabBarDefaults
 import ru.blays.hub.core.ui.elements.bubbleTabBar.BubbleTabConfig
 import ru.blays.hub.core.ui.elements.bubbleTabBar.rememberBubbleTabBarState
 import ru.blays.hub.core.ui.elements.infoDialog.InfoDialogContent
-import ru.blays.hub.core.ui.elements.spacers.VerticalSpacer
 import ru.blays.hub.core.ui.screens.aboutContent.AboutContent
 import ru.blays.hub.core.ui.screens.appsContent.AppsRootContent
 import ru.blays.hub.core.ui.screens.downloadsContent.DownloadsContent
@@ -58,13 +51,13 @@ fun TabsContent(
 ) {
     val tabs = createTabs()
     val bubbleTabBarState = rememberBubbleTabBarState(tabs)
+    val bottomSheetState = rememberModalBottomSheetState(true)
 
     val pmResultDialogInstance =
         component.pmResultDialog.subscribeAsState().value.child?.instance
     val mmResultDialogInstance =
         component.mmResultDialog.subscribeAsState().value.child?.instance
-    val selfUpdateDialogInstance =
-        component.selfUpdateComponent.dialog.subscribeAsState().value.child?.instance
+    val selfUpdateState by component.selfUpdateComponent.state.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -103,37 +96,41 @@ fun TabsContent(
         }
     }
 
-    Crossfade(
-        targetState = selfUpdateDialogInstance,
-        label = "bottomSheetCrossfade"
+    when(
+        val currentState = selfUpdateState
     ) {
-        it?.let { selfUpdateDialogComponent ->
-            Box(
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .fillMaxSize()
-                    .background(
-                        color = Color.Black.copy(0.6F)
-                    )
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = {}
-                    )
+        is SelfUpdateComponent.State.Available -> {
+            val onClose = {
+                component.selfUpdateComponent.onOutput(
+                    SelfUpdateComponent.Output.Close
+                )
+            }
+            ModalBottomSheet(
+                sheetState = bottomSheetState,
+                onDismissRequest = onClose,
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    shape = BottomSheetDefaults.ExpandedShape,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                ) {
-                    Column {
-                        VerticalSpacer(height = 10.dp)
-                        SelfUpdateContent(component = selfUpdateDialogComponent)
-                    }
-                }
+                SelfUpdateDialogContent(
+                    updateInfo = currentState.updateInfo,
+                    onUpdate = {
+                        component.selfUpdateComponent.sendIntent(
+                            SelfUpdateComponent.Intent.UpdateApp(it)
+                        )
+                    },
+                    onClose = onClose
+                )
+            }
+            LaunchedEffect(Unit) {
+                bottomSheetState.expand()
+            }
+        }
+        else -> {
+            LaunchedEffect(Unit) {
+                bottomSheetState.hide()
             }
         }
     }
+
+
 
     pmResultDialogInstance?.let { dialogComponent ->
         val onDismissRequest = {

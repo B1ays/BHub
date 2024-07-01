@@ -35,6 +35,7 @@ fun SettingsRootContent(
             is SettingsRootComponent.Child.CatalogsSetting -> CatalogsSettingScreen(component = child.component)
             is SettingsRootComponent.Child.MainSettings -> MainSettingsContent(component = child.component)
             is SettingsRootComponent.Child.ThemeSettings -> ThemeSettingsContent(component = child.component)
+            is SettingsRootComponent.Child.SelfUpdateSettings -> SelfUpdateSettingsContent(component = child.component)
         }
     }
 }

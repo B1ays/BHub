@@ -225,8 +225,7 @@ fun SettingsExpandableCard(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            )
-            {
+            ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(0.7F)
                 ) {

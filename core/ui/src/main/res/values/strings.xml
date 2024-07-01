@@ -17,11 +17,12 @@
     <string name="url_formatted" translatable="false">Url:\u00a0%1$s</string>
     <string name="add_catalog">Add catalog</string>
     <string name="loading">Loading…</string>
+    <string name="downloading">Downloading…</string>
     <string name="versions">Versions</string>
     <string name="interval">Interval</string>
     <string name="enabled">Enabled</string>
 
-
+    <string name="updatesNotFound">Updates not found</string>
     <string name="appInfo_notProvided">App info not provided</string>
 
     <string name="sort_order_reversed">Reversed order</string>
@@ -43,6 +44,7 @@
     <string name="appBar_title_downloads">Downloads</string>
     <string name="appBar_title_catalogs">Catalogs</string>
     <string name="appBar_title_moduleInstall">Module install</string>
+    <string name="appBar_title_selfUpdate">Update</string>
 
     <string name="bottomBar_tab_apps">Apps</string>
     <string name="bottomBar_tab_downloads" translatable="false">@string/appBar_title_downloads</string>
@@ -73,6 +75,7 @@
     <string name="action_back">Back</string>
     <string name="action_add">Add</string>
     <string name="action_submit">Submit</string>
+    <string name="action_checkUpdates">Check for updates</string>
 
     <!--  Content description  -->
     <string name="content_description_icon_back">Icon arrow back</string>
@@ -118,6 +121,8 @@
     <!--  Settings  -->
     <string name="settings_group_theme">Theme and colors</string>
     <string name="settings_group_main">Main</string>
+    <string name="settings_group_selfUpdate">Updates</string>
+
     <string name="setting_title_theme">Theme</string>
     <string name="setting_subtitle_theme">Select application theme</string>
     <string name="setting_title_monet">Monet colors</string>

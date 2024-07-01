@@ -60,6 +60,15 @@ sealed class PackageManagerResult<out V> {
     data class Success<out V>(val value: V?) : PackageManagerResult<V>()
     data class Error(val error: PackageManagerError, val message: String) : PackageManagerResult<Nothing>()
 
+    inline fun getOrElse(
+        onError: (Error) -> @UnsafeVariance V?
+    ): V? {
+        return when (this) {
+            is Success -> this.value
+            is Error -> onError(this)
+        }
+    }
+
     fun getValueOrNull(): V? = getOrElse { null }
 
     val isError
@@ -69,11 +78,3 @@ sealed class PackageManagerResult<out V> {
         get() = this is Success
 }
 
-internal inline fun <R, T : R> PackageManagerResult<T>.getOrElse(
-    onError: (PackageManagerResult.Error) -> R?
-): R? {
-    return when (this) {
-        is PackageManagerResult.Success -> this.value
-        is PackageManagerResult.Error -> onError(this)
-    }
-}

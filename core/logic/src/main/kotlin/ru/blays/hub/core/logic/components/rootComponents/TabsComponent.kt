@@ -85,7 +85,8 @@ class TabsComponent(
         )
     }
     val selfUpdateComponent = SelfUpdateComponent(
-        componentContext = childContext("selfUpdateComponent")
+        componentContext = childContext("selfUpdateComponent"),
+        checkOnCreate = true
     )
 
     fun selectPage(configuration: Configuration) {

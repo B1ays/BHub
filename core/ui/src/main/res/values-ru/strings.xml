@@ -9,6 +9,7 @@
     <string name="content_description_icon_shizuku">Иконка Shizuku</string>
     <string name="settings_group_theme">Тема и цвета</string>
     <string name="settings_group_main">Основные</string>
+    <string name="settings_group_selfUpdate">Обновления</string>
 
     <string name="setting_title_theme">Тема</string>
     <string name="setting_subtitle_theme">Выбрать тему приложения</string>
@@ -107,6 +108,7 @@
     <string name="appBar_title_downloads">Загрузки</string>
     <string name="appBar_title_catalogs">Каталоги</string>
     <string name="appBar_title_moduleInstall">Установка модуля</string>
+    <string name="appBar_title_selfUpdate">Обновление</string>
     <string name="bottomBar_tab_apps">Приложения</string>
     <string name="app_page_tab_description">Описание</string>
     <string name="dialog_shizuku_action_download">Скачать Shizuku</string>
@@ -154,6 +156,7 @@
     <string name="error_formatted">Ошибка:\u00a0%1$s</string>
     <string name="add_catalog">Добавление каталога</string>
     <string name="loading">Загрузка…</string>
+    <string name="downloading">Скачивание…</string>
     <string name="action_submit">Далее</string>
     <string name="versions">Версии</string>
     <string name="setting_subtitle_checkAppsUpdates">Проверять в фоне наличие обновлений в добавленных каталогах</string>
@@ -162,4 +165,6 @@
     <string name="landing_permission_batteryOptimization">Оптимизация батареи</string>
     <string name="battery_optimized">Оптимизирована, нажмите чтобы отключить</string>
     <string name="battery_notOptimized">Не оптимизирована</string>
+    <string name="action_checkUpdates">Проверить наличие обновлений</string>
+    <string name="updatesNotFound">Обновления не найдены</string>
 </resources>
