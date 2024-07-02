@@ -55,6 +55,8 @@ class ModuleManagerImpl2(
             val mountScriptPath = "$appFolderPath/$MODULE_FILE_MOUNT"
             val mountScript = createMountScript(modApkPath, request.packageName)
 
+            unmountApp(request.packageName)
+
             statusFlow.updateStatus(
                 InstallStatus.InProgress(
                     getString(R.string.Install_progress_createAppFolder)
@@ -87,7 +89,6 @@ class ModuleManagerImpl2(
                 )
                 return@launch
             }
-            unmountApp(request.packageName)
             mountApp(modApkPath, request.packageName)
             statusFlow.updateStatus(InstallStatus.Success)
         }
@@ -96,10 +97,9 @@ class ModuleManagerImpl2(
 
     override fun delete(packageName: String): Boolean {
         val appPath = getAppFolderPath(packageName)
+        unmountApp(packageName)
         val deleteResult = deleteFile(appPath)
-        val deleteSuccess = deleteResult.isSuccess
-        if (deleteSuccess) unmountApp(packageName)
-        return deleteSuccess
+        return deleteResult.isSuccess
     }
 
     override fun checkModuleExist(packageName: String): Boolean {
@@ -169,7 +169,6 @@ class ModuleManagerImpl2(
         packageName: String
     ) {
         val origApkPath = getInstalledApkPath(packageName) ?: return
-
         setChmod(modPath, 644) IF_SUCCESS {
             setChown(modPath, "system:system") IF_SUCCESS {
                 setChcon(modPath, "u:object_r:apk_data_file:s0") IF_SUCCESS {
