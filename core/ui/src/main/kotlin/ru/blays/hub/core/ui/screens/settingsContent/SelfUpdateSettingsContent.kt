@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -231,20 +230,11 @@ private fun UpdatesInfoContainer(
                 contentDescriptionId = R.string.content_description_icon_error,
                 message = state.message
             )
-            SelfUpdateComponent.State.NotAvailable -> {
-                Surface(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(
-                        modifier = Modifier.padding(20.dp),
-                        text = stringResource(R.string.updatesNotFound),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
+            SelfUpdateComponent.State.NotAvailable -> FullscreenPlaceholder(
+                iconId = R.drawable.ic_time_crossed,
+                contentDescriptionId = R.string.content_description_icon_time_crossed,
+                messageId = R.string.updatesNotFound
+            )
             else -> Unit
         }
     }

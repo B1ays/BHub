@@ -109,6 +109,8 @@
     <string name="content_description_icon_share">Icon share</string>
     <string name="content_description_icon_fileExport">Icon file export</string>
     <string name="content_description_icon_edit">Icon edit</string>
+    <string name="content_description_icon_time_crossed">Icon time crossed</string>
+
 
     <!--  Links  -->
     <string name="link_tg_group" translatable="false">https://t.me/BHub_app</string>
