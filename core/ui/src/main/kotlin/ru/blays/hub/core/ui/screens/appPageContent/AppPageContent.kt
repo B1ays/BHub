@@ -219,11 +219,12 @@ private fun AppDescriptionContent(
         targetState = state,
         label = "stateCrossfade"
     ) { currentState ->
-        when (currentState) {
-            is AppDescriptionComponent.State.Error -> {
-
-            }
-
+        when(currentState) {
+            is AppDescriptionComponent.State.Error -> FullscreenPlaceholder(
+                iconId = R.drawable.ic_smile_sad,
+                contentDescriptionId = R.string.content_description_icon_smile_sad,
+                message = currentState.message
+            )
             is AppDescriptionComponent.State.Loaded -> {
                 Column(
                     modifier = modifier
@@ -246,7 +247,6 @@ private fun AppDescriptionContent(
                     )
                 }
             }
-
             is AppDescriptionComponent.State.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -257,7 +257,6 @@ private fun AppDescriptionContent(
                     )
                 }
             }
-
             is AppDescriptionComponent.State.NotProvided -> {
                 FullscreenPlaceholder(
                     iconId = R.drawable.ic_book_crossed,

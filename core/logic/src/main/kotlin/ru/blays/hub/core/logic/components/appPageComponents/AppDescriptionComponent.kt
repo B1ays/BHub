@@ -47,10 +47,10 @@ class AppDescriptionComponent(
     }
 
     private fun refresh() {
+        val appInfo = app.appInfo ?: return
         if(state.value == State.NotProvided) return
         coroutineScope.launch {
             _state.update { State.Loading }
-            val appInfo = app.appInfo ?: return@launch
             val readmeResult = networkRepository.getString(
                 fullUrlString(app.sourceUrl, appInfo.readmeHref)
             )
@@ -58,7 +58,7 @@ class AppDescriptionComponent(
                 is NetworkResult.Failure -> {
                     _state.update {
                         State.Error(
-                            readmeResult.error.message ?: context.getString(R.string.error_root_not_granted)
+                            readmeResult.error.message ?: context.getString(R.string.unknown_error)
                         )
                     }
                 }
