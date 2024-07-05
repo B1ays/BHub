@@ -4,8 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -77,6 +75,7 @@ import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.buttons.CustomIconButton
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingToolbar
+import ru.blays.hub.core.ui.elements.collapsingToolbar.rememberToolbarScrollBehavior
 import ru.blays.hub.core.ui.elements.contextMenu.ContextMenu
 import ru.blays.hub.core.ui.elements.contextMenu.contextMenuAnchor
 import ru.blays.hub.core.ui.elements.contextMenu.rememberContextMenuState
@@ -85,9 +84,7 @@ import ru.blays.hub.core.ui.elements.progressIndicator.GradientCircularProgressI
 import ru.blays.hub.core.ui.elements.spacers.HorizontalSpacer
 import ru.blays.hub.core.ui.elements.spacers.VerticalSpacer
 import ru.blays.hub.core.ui.elements.text.TextWithPrefix
-import ru.blays.hub.core.ui.utils.ScrollDirection
 import ru.blays.hub.core.ui.utils.primaryColorAtAlpha
-import ru.blays.hub.core.ui.utils.rememberDirectionalLazyListState
 import ru.blays.hub.core.ui.utils.shadowPlus
 import ru.blays.hub.core.ui.utils.thenIf
 import ru.blays.hub.core.ui.values.DefaultPadding
@@ -99,24 +96,8 @@ fun DownloadsContent(
 ) {
     val state by component.state.collectAsState()
     val lazyListState = rememberLazyListState()
-    val shimmer = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
-    val scrollDirectionProvider = rememberDirectionalLazyListState(lazyListState)
-    val scrollDirection = scrollDirectionProvider.scrollDirection
-    var floatingMenuVisible by remember { mutableStateOf(true) }
-
-    LaunchedEffect(scrollDirection) {
-        when (scrollDirection) {
-            ScrollDirection.Up -> {
-                floatingMenuVisible = true
-            }
-
-            ScrollDirection.Down -> {
-                floatingMenuVisible = false
-            }
-
-            else -> Unit
-        }
-    }
+    val toolbarScrollBehavior = rememberToolbarScrollBehavior()
+    val shimmer = rememberShimmer(ShimmerBounds.Window)
 
     Scaffold(
         topBar = {
@@ -124,22 +105,27 @@ fun DownloadsContent(
                 collapsingTitle = CollapsingTitle.large(
                     titleText = stringResource(id = R.string.appBar_title_downloads)
                 ),
+                scrollBehavior = toolbarScrollBehavior,
+                collapsedElevation = 0.dp
             )
         },
-        floatingActionButton = {
-            AnimatedVisibility(
-                visible = floatingMenuVisible,
-                enter = slideInVertically(),
-                exit = slideOutVertically()
+        bottomBar = {
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 FloatingMenu(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(10.dp),
                     component = component.menuComponent,
                 )
             }
         }
     ) { padding ->
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .nestedScroll(toolbarScrollBehavior.nestedScrollConnection),
             state = lazyListState,
             contentPadding = padding,
             verticalArrangement = Arrangement.spacedBy(4.dp)
