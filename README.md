@@ -10,14 +10,9 @@
   <img alt="material" src="https://custom-icon-badges.demolab.com/badge/material%20you-lightblue?style=for-the-badge&logoColor=333&logo=material-you"/></a>
 </p>
 <p align="center">
-    <a href="https://github.com/B1ays/BHub/">
-        <img alt="Hits" src="https://hits.sh/github.com/B1ays/BHub.svg?style=for-the-badge&label=Views&extraCount=7500&color=ff3f6f"/></a>
-    <a href="https://github.com/B1ays/BHub/releases">
-        <img src="https://img.shields.io/github/downloads/B1ays/BHub/total?color=orange&style=for-the-badge"/>
-    </a>
-    <a href="https://github.com/B1ays/BHub/stargazers">
-        <img src="https://img.shields.io/github/stars/B1ays/BHub?color=ffff00&style=for-the-badge"/>
-    </a>
+    <a href="https://github.com/B1ays/BHub/"><img alt="Hits" src="https://hits.sh/github.com/B1ays/BHub.svg?style=for-the-badge&label=Views&extraCount=7500&color=ff3f6f"/></a>
+    <a href="https://github.com/B1ays/BHub/releases"><img src="https://img.shields.io/github/downloads/B1ays/BHub/total?color=orange&style=for-the-badge"/></a>
+    <a href="https://github.com/B1ays/BHub/stargazers"><img src="https://img.shields.io/github/stars/B1ays/BHub?color=ffff00&style=for-the-badge"/></a>
 </p>
 
 ### Other language: [Русский](https://github.com/B1ays/BHub/blob/main/README_RU.md "Русский")
