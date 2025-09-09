@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -10,16 +8,14 @@ plugins {
 
 android {
     namespace = "ru.blays.hub"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ru.blays.hub"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = libs.versions.projectVersionCode.get().toInt()
         versionName = libs.versions.projectVersionName.get()
-        
-        resourceConfigurations += listOf("en", "ru")
     }
 
     buildTypes {
@@ -41,9 +37,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_18
         targetCompatibility = JavaVersion.VERSION_18
-    }
-    kotlinOptions {
-        jvmTarget = "18"
     }
     buildFeatures {
         compose = true
@@ -92,15 +85,4 @@ dependencies {
     implementation(projects.core.packageManager)
     implementation(projects.utils.workerDsl)
     implementation(projects.utils.coilDsl)
-}
-
-composeCompiler {
-    enableStrongSkippingMode = true
-    enableNonSkippingGroupOptimization = true
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xskip-prerelease-check")
-    }
 }

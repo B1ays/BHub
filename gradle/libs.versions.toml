@@ -4,45 +4,46 @@ projectVersionName = "1.1"
 projectVersionCode = "2"
 
 #Dependencies versions
-agp = "8.6.0-beta01"
-kotlin = "2.0.0"
-kotlinx-serizalization = "1.7.1"
-kotlinx-coroutines = "1.9.0-RC"
-kotlinx-collections-immutable = "0.3.7"
-coreKtx = "1.13.1"
-workManager = "2.10.0-alpha02"
-datastore = "1.1.1"
-room = "2.7.0-alpha05"
-lifecycleRuntimeKtx = "2.8.3"
-activityCompose = "1.9.0"
-composeBom = "2024.06.00-alpha01"
-appcompat = "1.7.0"
-constraintLayout = "2.2.0-alpha13"
-constraintLayoutCompose = "1.1.0-alpha13"
-okhttp = "5.0.0-alpha.14"
-koin = "3.6.0-wasm-alpha2"
-ksp = "2.0.0-1.0.21"
-annotationJvm = "1.8.0"
-coil = "2.6.0"
+agp = "8.13.0"
+kotlin = "2.2.10"
+kotlinx-serizalization = "1.9.0"
+kotlinx-coroutines = "1.10.2"
+kotlinx-collections-immutable = "0.4.0"
+coreKtx = "1.17.0"
+workManager = "2.10.3"
+datastore = "1.1.7"
+room = "2.7.2"
+lifecycleRuntimeKtx = "2.9.3"
+activityCompose = "1.10.1"
+composeBom = "2025.08.01"
+appcompat = "1.7.1"
+constraintLayout = "2.2.1"
+constraintLayoutCompose = "1.1.1"
+okhttp = "5.1.0"
+koin = "4.1.1"
+ksp = "2.2.10-2.0.2"
+annotationJvm = "1.9.1"
+coil = "2.7.0"
 composeMarkdown = "0.5.0"
 libsu = "5.2.2"
-detekt = "1.23.6"
-vkompose = "0.5.4"
-materialKolor = "1.7.0"
-protobufPlugin = "0.9.4"
-protobuf = "4.27.2"
+detekt = "1.23.8"
+vkompose = "0.7.1"
+materialKolor = "3.0.1"
+protobufPlugin = "0.9.5"
+protobuf = "4.32.0"
 shizuku = "13.1.5"
 refineTools = "4.4.0"
-hiddenApi = "4.3.3"
-hiddenApiBypass = "4.3"
+hiddenApi = "4.4.0"
+hiddenApiBypass = "6.1"
 composeShadowsPlus = "1.0.4"
-composeShimmer = "1.3.0"
-moduleGraphAssert = "2.5.0"
-material = "1.12.0"
+composeShimmer = "1.3.3"
+moduleGraphAssert = "2.9.0"
+material = "1.13.0"
 
 # Decompose
-decompose = "3.1.0"
-essenty = "2.1.0"
+decompose = "3.3.0"
+essenty = "2.5.0"
+kotzilla = "1.1.0"
 
 [libraries]
 # AndroidX
@@ -61,7 +62,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # AndroidX Compose
-androidx-compose-bom = { group = "dev.chrisbanes.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -137,6 +138,7 @@ materialKolor = { group = "com.materialkolor", name = "material-kolor", version.
 protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
 protobuf-javalite = {module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf"}
 protobuf-kotlinlite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
+kotzilla-sdk = { group = "io.kotzilla", name = "kotzilla-sdk", version.ref = "kotzilla" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -152,3 +154,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 google-protobufs = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 refineTools = { id = "dev.rikka.tools.refine", version.ref = "refineTools" }
 modulesGraphAssert = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraphAssert" }
+kotzilla = { id = "io.kotzilla.kotzilla-plugin", version.ref = "kotzilla" }
