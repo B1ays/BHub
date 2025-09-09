@@ -16,16 +16,16 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import ru.blays.hub.core.logic.coreModule
+import ru.blays.hub.core.logic.workers.CheckAppsUpdatesWorker
+import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.utils.coilDsl.crossfade
 import ru.blays.hub.utils.coilDsl.diskCache
 import ru.blays.hub.utils.coilDsl.imageLoader
 import ru.blays.hub.utils.coilDsl.memoryCache
-import ru.blays.hub.core.logic.coreModule
-import ru.blays.hub.core.logic.workers.CheckAppsUpdatesWorker
-import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
 
-class BHub: Application(), ImageLoaderFactory {
+class BHub : Application(), ImageLoaderFactory {
     private val settingsRepository: SettingsRepository by inject()
 
     override fun onCreate() {
@@ -39,6 +39,7 @@ class BHub: Application(), ImageLoaderFactory {
 
         startKoin {
             androidContext(this@BHub)
+            //analytics()
             modules(
                 appModule,
                 coreModule
@@ -72,7 +73,7 @@ class BHub: Application(), ImageLoaderFactory {
     @Suppress("DEPRECATION")
     private fun startUpdatesWork() {
         val workManager = WorkManager.getInstance(this)
-        if(settingsRepository.checkAppsUpdates) {
+        if (settingsRepository.checkAppsUpdates) {
             val workRequest = CheckAppsUpdatesWorker.createWorkRequest(
                 settingsRepository.checkAppsUpdatesInterval
             )
