@@ -1,18 +1,12 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlinx.serizalization)
+    alias(libs.plugins.convention.androidLibrary)
 }
 
 android {
     namespace = "ru.blays.hub.core.logic"
-    compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
-
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -25,19 +19,20 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
-    }
-    kotlinOptions {
-        jvmTarget = "18"
+
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-Xcontext-parameters",
+                "-XXLanguage:+ExplicitBackingFields",
+                "-Xskip-prerelease-check"
+            )
+        }
     }
 }
 
 dependencies {
     // AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.activity.compose)
 
@@ -76,18 +71,4 @@ dependencies {
 
     // Extensions
     implementation(projects.utils.workerDsl)
-}
-
-kotlin {
-    sourceSets.all {
-        languageSettings {
-            languageVersion = "2.0"
-        }
-    }
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xcontext-receivers", "-XXLanguage:+ExplicitBackingFields", "-Xskip-prerelease-check")
-    }
 }

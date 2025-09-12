@@ -1,15 +1,11 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.convention.androidLibrary)
 }
 
 android {
     namespace = "ru.blays.hub.core.logger"
-    compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
-
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -22,22 +18,12 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
-    }
-    kotlinOptions {
-        jvmTarget = "18"
-    }
     buildFeatures {
         buildConfig = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-
     // Koin
     implementation(libs.koin.core)
 }

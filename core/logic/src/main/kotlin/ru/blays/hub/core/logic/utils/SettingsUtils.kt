@@ -4,12 +4,12 @@ import android.content.Context
 import android.widget.Toast
 import ru.blays.hub.core.deviceUtils.DeviceInfo
 import ru.blays.hub.core.logic.R
-import ru.blays.hub.core.preferences.proto.PMType
 import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.hub.core.preferences.proto.PMType
 
-context(Context)
+context(context: Context)
 internal fun SettingsRepository.validateSettings() {
-    SettingsValidator.validateSettings(this, this@Context)
+    SettingsValidator.validateSettings(this, context)
 }
 
 internal fun SettingsRepository.validateSettings(context: Context)  {

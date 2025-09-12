@@ -1,24 +1,14 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.convention.composeLibrary)
 }
 
 android {
     namespace = "ru.blays.hub.core.ui"
-    compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
         consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildFeatures {
-        buildConfig = true
-        compose = true
     }
 
     buildTypes {
@@ -30,6 +20,16 @@ android {
             )
         }
     }
+
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-Xcontext-parameters",
+                "-Xskip-prerelease-check"
+            )
+        }
+    }
+
     buildTypes.forEach {
         it.buildConfigField(
             "String",
@@ -42,32 +42,14 @@ android {
             "\"${libs.versions.projectVersionName.get()}\""
         )
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
-    }
-    kotlinOptions {
-        jvmTarget = "18"
-    }
 }
 
 dependencies {
-    // AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-
     // KotlinX
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.collections.immutable)
 
-    // Compose
-    api(platform(libs.androidx.compose.bom))
-    api(libs.androidx.compose.ui)
-    api(libs.androidx.compose.ui.graphics)
-    api(libs.androidx.compose.ui.tooling.preview)
-    api(libs.androidx.compose.material3)
-    api(libs.androidx.activity.compose)
-
+    // Constraint layout
     api(libs.androidx.constraintLayout)
     api(libs.androidx.constraintLayout.compose)
 
@@ -102,15 +84,4 @@ dependencies {
 
     // Modules
     api(projects.core.logic)
-}
-
-composeCompiler {
-    enableStrongSkippingMode = true
-    enableNonSkippingGroupOptimization = true
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xcontext-receivers", "-Xskip-prerelease-check")
-    }
 }

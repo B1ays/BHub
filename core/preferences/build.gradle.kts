@@ -1,18 +1,14 @@
 import com.google.protobuf.gradle.proto
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.protobufs)
+    alias(libs.plugins.convention.androidLibrary)
 }
 
 android {
     namespace = "ru.blays.hub.core.preferences"
-    compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -25,27 +21,22 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
-    }
-    kotlinOptions {
-        jvmTarget = "18"
-    }
     sourceSets {
         named("main") {
             proto {
                 srcDir("src/main/proto")
             }
-
+        }
+    }
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.add("-Xcontext-parameters")
         }
     }
 }
 
 dependencies {
-    // AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
+    // Datastore
     api(libs.androidx.datastore.proto)
 
     // Protobuf
@@ -72,11 +63,5 @@ protobuf {
                 }
             }
         }
-    }
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
     }
 }

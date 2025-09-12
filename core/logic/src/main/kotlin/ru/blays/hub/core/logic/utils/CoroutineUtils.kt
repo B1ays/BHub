@@ -40,11 +40,11 @@ fun <T, M> StateFlow<T>.map(
     mapper(value)
 )
 
-context(CoroutineScope)
+context(scope: CoroutineScope)
 fun <T, M> StateFlow<T>.map(
     mapper : (value : T) -> M
 ): StateFlow<M> = map(mapper).stateIn(
-    this@CoroutineScope,
+    scope,
     SharingStarted.Eagerly,
     mapper(value)
 )

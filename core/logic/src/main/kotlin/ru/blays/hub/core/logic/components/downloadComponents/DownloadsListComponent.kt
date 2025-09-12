@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-import android.content.pm.PackageInfo
 import androidx.compose.runtime.Stable
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
@@ -35,8 +34,6 @@ import ru.blays.hub.core.logic.utils.readableDate
 import ru.blays.hub.core.logic.utils.readableSize
 import ru.blays.hub.core.packageManager.getPackageManager
 import ru.blays.hub.core.packageManager.utils.getPackageInfo
-import ru.blays.hub.core.packageManager.utils.signatureHash
-import ru.blays.hub.core.packageManager.utils.versionCodeLong
 import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.core.preferences.proto.FilesSortMethod
 import ru.blays.hub.core.preferences.proto.FilesSortSetting
@@ -200,7 +197,7 @@ class DownloadsListComponent(
         val file = File(filePath)
         ApkFile(
             name = name,
-            apkInfo = packageInfo?.toApkInfo(),
+            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, packageManager) },
             sizeString = file.readableSize,
             dateString = file.readableDate,
             file = file
@@ -211,21 +208,12 @@ class DownloadsListComponent(
         val packageInfo = context.getPackageInfo(path)
         ApkFile(
             name = name,
-            apkInfo = packageInfo?.toApkInfo(),
+            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, packageManager) },
             sizeString = readableSize,
             dateString = readableDate,
             file = this@toDownloadedApk
         )
     }
-
-    private fun PackageInfo.toApkInfo() = ApkInfo(
-        icon = applicationInfo.loadIcon(packageManager),
-        name = applicationInfo.name,
-        packageName = packageName,
-        versionName = versionName,
-        versionCode = versionCodeLong,
-        signatureHash = signatureHash
-    )
 
     init {
         val onTaskAddedListener = DownloadsRepository.OnTaskAddedListener { task ->

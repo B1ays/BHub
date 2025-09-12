@@ -15,7 +15,7 @@ internal fun Module.okHttpClient(
     }
 }
 
-context(Scope, OkHttpClient.Builder)
+context(scope: Scope, builder: OkHttpClient.Builder)
 internal fun addAllInterceptors() {
-    getAll<Interceptor>().forEach(::addInterceptor)
+    scope.getAll<Interceptor>().forEach(builder::addInterceptor)
 }

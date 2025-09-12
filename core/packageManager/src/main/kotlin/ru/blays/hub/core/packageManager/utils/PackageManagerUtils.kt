@@ -33,8 +33,8 @@ fun Context.getPackageInfo(
             packageInfoFlags(false)
         )
     )?.apply {
-        applicationInfo.sourceDir = path
-        applicationInfo.publicSourceDir = path
+        applicationInfo?.sourceDir = path
+        applicationInfo?.publicSourceDir = path
     }
 }
 fun Context.getPackageInfo(
@@ -50,8 +50,8 @@ fun Context.getPackageInfo(
             packageInfoFlags(false)
         )
     )?.apply {
-        applicationInfo.sourceDir = filePath
-        applicationInfo.publicSourceDir = filePath
+        applicationInfo?.sourceDir = filePath
+        applicationInfo?.publicSourceDir = filePath
     }
 }
 

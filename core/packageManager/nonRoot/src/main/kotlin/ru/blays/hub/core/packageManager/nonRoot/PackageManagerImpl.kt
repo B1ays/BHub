@@ -83,7 +83,7 @@ class PackageManagerImpl(
     override suspend fun getInstallationDir(packageName: String): PackageManagerResult<String> = coroutineScope {
         return@coroutineScope try {
             val packageInfo = getPackageInfo(packageName)
-            val installationDir = packageInfo.applicationInfo.sourceDir
+            val installationDir = packageInfo.applicationInfo?.sourceDir
             PackageManagerResult.Success(installationDir)
         } catch (e: NameNotFoundException) {
             logger.e(e)

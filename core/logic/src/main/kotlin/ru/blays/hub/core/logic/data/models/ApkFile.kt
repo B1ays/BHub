@@ -30,12 +30,13 @@ data class ApkInfo(
         fun fromPackageInfo(
             packageInfo: PackageInfo,
             packageManager: PackageManager
-        ): ApkInfo {
+        ): ApkInfo? {
+            val applicationInfo = packageInfo.applicationInfo ?: return null
             return ApkInfo(
-                icon = packageInfo.applicationInfo.loadIcon(packageManager),
-                name = packageInfo.applicationInfo.name,
+                icon = applicationInfo.loadIcon(packageManager),
+                name = applicationInfo.name,
                 packageName = packageInfo.packageName,
-                versionName = packageInfo.versionName,
+                versionName = packageInfo.versionName.orEmpty(),
                 versionCode = packageInfo.versionCodeLong,
                 signatureHash = packageInfo.signatureHash
             )

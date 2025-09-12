@@ -4,16 +4,15 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.modulesGraphAssert)
+    alias(libs.plugins.convention.androidApplication)
+    alias(libs.plugins.convention.composeLibrary)
 }
 
 android {
     namespace = "ru.blays.hub"
-    compileSdk = 36
 
     defaultConfig {
         applicationId = "ru.blays.hub"
-        minSdk = 26
-        targetSdk = 36
         versionCode = libs.versions.projectVersionCode.get().toInt()
         versionName = libs.versions.projectVersionName.get()
     }
@@ -34,14 +33,6 @@ android {
             }
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_18
-        targetCompatibility = JavaVersion.VERSION_18
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -51,8 +42,6 @@ android {
 
 dependencies {
     // AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.work.runtime)
 

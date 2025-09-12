@@ -25,9 +25,9 @@ import ru.blays.hub.core.packageManager.LoggerAdapter
 import ru.blays.hub.core.packageManager.PackageManager
 import ru.blays.hub.core.packageManager.PackageManagerError
 import ru.blays.hub.core.packageManager.PackageManagerResult
-import ru.blays.hub.core.packageManager.utils.intentSender
 import ru.blays.hub.core.packageManager.shizuku.utils.asShizukuBinder
 import ru.blays.hub.core.packageManager.shizuku.utils.wrap
+import ru.blays.hub.core.packageManager.utils.intentSender
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
@@ -132,7 +132,7 @@ class PackageManagerImpl(
     ): PackageManagerResult<String> = coroutineScope {
         return@coroutineScope try {
             val packageInfo = getPackageInfo(packageName)
-            val installationDir = packageInfo.applicationInfo.sourceDir
+            val installationDir = packageInfo.applicationInfo?.sourceDir
             PackageManagerResult.Success(installationDir)
         } catch (e: NameNotFoundException) {
             logger.e(e)

@@ -28,13 +28,13 @@ import ru.blays.hub.core.ui.elements.autoscaleText.AutoscaleText
 import ru.blays.hub.core.ui.elements.spacers.VerticalSpacer
 import ru.blays.hub.core.ui.values.DefaultPadding
 
-context(ColumnScope)
+context(scope: ColumnScope)
 @Composable
 fun SelfUpdateDialogContent(
     updateInfo: AppUpdateInfoModel,
     onUpdate: (AppUpdateInfoModel) -> Unit,
     onClose: () -> Unit
-) {
+) = with(scope) {
     Header()
     VerticalSpacer(height = 4.dp)
     HorizontalDivider(
@@ -57,12 +57,12 @@ fun SelfUpdateDialogContent(
     VerticalSpacer(height = 4.dp)
 }
 
-context(ColumnScope)
+context(scope: ColumnScope)
 @Composable
 fun SelfUpdateContent(
     updateInfo: AppUpdateInfoModel,
     onUpdate: (AppUpdateInfoModel) -> Unit
-) {
+) = with(scope) {
     Header()
     VerticalSpacer(height = 4.dp)
     HorizontalDivider(

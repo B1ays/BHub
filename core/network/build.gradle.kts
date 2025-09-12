@@ -1,9 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    id("java-library")
-    alias(libs.plugins.jetbrains.kotlin.jvm)
     alias(libs.plugins.kotlinx.serizalization)
+    alias(libs.plugins.convention.jvmLibrary)
 }
 
 dependencies {
@@ -23,13 +20,11 @@ dependencies {
     implementation(libs.koin.core.coroutines)
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_18
-    targetCompatibility = JavaVersion.VERSION_18
-}
-
-tasks.withType<KotlinCompile>().configureEach {
+kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xcontext-receivers", "-Xskip-prerelease-check")
+        freeCompilerArgs.addAll(
+            "-Xcontext-parameters",
+            "-Xskip-prerelease-check"
+        )
     }
 }

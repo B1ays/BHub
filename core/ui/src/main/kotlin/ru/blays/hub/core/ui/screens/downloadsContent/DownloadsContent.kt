@@ -735,6 +735,6 @@ fun sortMethodName(method: FilesSortMethod): String? {
     }
 }
 
-context(ConstraintLayoutScope)
+context(constrainLayoutScope: ConstraintLayoutScope)
 private fun LayoutReference.endMargin(endMargin: Dp) =
-    withHorizontalChainParams(endMargin = endMargin)
+    with(constrainLayoutScope) { withHorizontalChainParams(endMargin = endMargin) }

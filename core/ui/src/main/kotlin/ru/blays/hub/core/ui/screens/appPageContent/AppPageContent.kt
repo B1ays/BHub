@@ -296,14 +296,14 @@ private fun VersionContent(
     }
 }
 
-context(SharedTransitionScope, AnimatedVisibilityScope)
+context(transitionScope: SharedTransitionScope, visibilityScope: AnimatedVisibilityScope)
 @Suppress("NonSkippableComposable")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun VersionsList(
     modifier: Modifier = Modifier,
     component: AppVersionsListComponent
-) {
+) = with(transitionScope) {
     val state by component.state.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -382,7 +382,7 @@ private fun VersionsList(
                                 },
                                 modifier = Modifier.sharedBounds(
                                     sharedContentState = rememberSharedContentState(key = "container-${version.version}_${version.buildDate}"),
-                                    animatedVisibilityScope = this@AnimatedVisibilityScope,
+                                    animatedVisibilityScope = visibilityScope,
                                     clipInOverlayDuringTransition = OverlayClip(CardDefaults.shape),
                                 )
                             )
@@ -424,14 +424,14 @@ private fun VersionActions(
     )
 }
 
-context(SharedTransitionScope, AnimatedVisibilityScope)
+context(transitionScope: SharedTransitionScope, visibilityScope: AnimatedVisibilityScope)
 @Suppress("NonSkippableComposable")
 @Composable
 private fun VersionItem(
     modifier: Modifier = Modifier,
     version: AppVersionCard,
     onClick: () -> Unit
-) {
+) = with(transitionScope) {
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
@@ -449,8 +449,8 @@ private fun VersionItem(
                 patchesVersion = version.patchesVersion,
                 buildDate = version.buildDate,
                 modifier = Modifier.sharedElement(
-                    state = rememberSharedContentState(key = "Info-${version.version}_${version.buildDate}"),
-                    animatedVisibilityScope = this@AnimatedVisibilityScope,
+                    sharedContentState = rememberSharedContentState(key = "Info-${version.version}_${version.buildDate}"),
+                    animatedVisibilityScope = visibilityScope,
                 )
             )
         }
@@ -475,13 +475,13 @@ fun VersionItemPlaceholder(
     }
 }
 
-context(SharedTransitionScope, AnimatedVisibilityScope)
+context(transitionScope: SharedTransitionScope, visibilityScope: AnimatedVisibilityScope)
 @Suppress("NonSkippableComposable", "UpdateTransitionLabel", "TransitionPropertiesLabel")
 @Composable
 private fun VersionPage(
     modifier: Modifier = Modifier,
     component: VersionPageComponent
-) {
+) = with(transitionScope) {
     val state by component.state.collectAsState()
 
     val shimmer = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
@@ -497,7 +497,7 @@ private fun VersionPage(
                 sharedContentState = rememberSharedContentState(
                     key = "container-${state.version}_${state.buildDate}"
                 ),
-                animatedVisibilityScope = this@AnimatedVisibilityScope,
+                animatedVisibilityScope = visibilityScope,
                 clipInOverlayDuringTransition = OverlayClip(CardDefaults.shape),
             )
             .background(
@@ -515,10 +515,8 @@ private fun VersionPage(
                 patchesVersion = state.patchesVersion,
                 buildDate = state.buildDate,
                 modifier = Modifier.sharedElement(
-                    state = rememberSharedContentState(
-                        key = "Info-${state.version}_${state.buildDate}"
-                    ),
-                    animatedVisibilityScope = this@AnimatedVisibilityScope,
+                    sharedContentState = rememberSharedContentState("Info-${state.version}_${state.buildDate}"),
+                    animatedVisibilityScope = visibilityScope,
                 )
             )
 
