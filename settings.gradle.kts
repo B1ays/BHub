@@ -29,21 +29,25 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "BHub"
+
+// App
 include(":app")
-include(":core")
-include(":core:network")
+
+// Core
+include(":core:domain")
 include(":core:ui")
+include(":core:network")
 include(":core:packageManager")
 include(":core:packageManager:nonRoot")
 include(":core:packageManager:root")
 include(":core:packageManager:shizuku")
-include(":core:logic")
 include(":core:moduleManager")
 include(":core:downloader")
 include(":core:preferences")
 include(":core:deviceUtils")
 include(":core:logger")
-include(":utils")
+
+// Utils
 include(":utils:workerDsl")
 include(":core:data")
 include(":utils:coilDsl")

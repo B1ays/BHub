@@ -83,5 +83,5 @@ dependencies {
     detektPlugins(libs.vkompose.detect)
 
     // Modules
-    api(projects.core.logic)
+    api(projects.core.domain)
 }
