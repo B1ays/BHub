@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -8,13 +10,30 @@ plugins {
     alias(libs.plugins.convention.composeLibrary)
 }
 
+val keystoreProps = properties(rootProject.file("keystore.properties"))
+
 android {
     namespace = "ru.blays.hub"
+
+    signingConfigs {
+        create("main") {
+            keyAlias = keystoreProps.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+            storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
 
     defaultConfig {
         applicationId = "ru.blays.hub"
         versionCode = libs.versions.projectVersionCode.get().toInt()
         versionName = libs.versions.projectVersionName.get()
+
+        signingConfig = signingConfigs["main"]
     }
 
     buildTypes {
@@ -31,6 +50,7 @@ android {
                 //noinspection ChromeOsAbiSupport
                 abiFilters += listOf("arm64-v8a", "x86_64")
             }
+            signingConfig = signingConfigs["main"]
         }
     }
     packaging {
@@ -74,4 +94,10 @@ dependencies {
     implementation(projects.core.packageManager)
     implementation(projects.utils.workerDsl)
     implementation(projects.utils.coilDsl)
+}
+
+private fun properties(file: File): Properties {
+    return Properties().apply {
+        load(file.reader())
+    }
 }

@@ -13,3 +13,5 @@ local.properties
 /core/packageManager/shizuku/kotzilla.json
 /kotzilla.json
 /gradle/build-logic/convention/build/
+/keystore.properties
+/keystore.jks
