@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import ru.blays.hub.core.logic.components.rootComponents.RootComponent
+import ru.blays.hub.core.domain.components.rootComponents.RootComponent
 import ru.blays.hub.core.ui.values.LocalStackAnimator
 
 @Composable

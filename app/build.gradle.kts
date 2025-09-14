@@ -91,7 +91,7 @@ dependencies {
     // Modules
     implementation(projects.core.network)
     implementation(projects.core.ui)
-    implementation(projects.core.packageManager)
+    implementation(projects.core.packageManager.api)
     implementation(projects.utils.workerDsl)
     implementation(projects.utils.coilDsl)
 }

@@ -43,6 +43,9 @@ cacheFix = "3.0.1"
 decompose = "3.3.0"
 essenty = "2.5.0"
 kotzilla = "1.2.1"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 
 [libraries]
 # AndroidX
@@ -144,6 +147,9 @@ kotzilla-sdk = { group = "io.kotzilla", name = "kotzilla-sdk", version.ref = "ko
 # Build logic dependencies
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

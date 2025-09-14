@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.blays.hub.core.logic.components.settingsComponents.developerMenu.DeveloperMenuLogsComponent
+import ru.blays.hub.core.domain.components.settingsComponents.developerMenu.DeveloperMenuLogsComponent
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.buttons.CustomIconButton
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle

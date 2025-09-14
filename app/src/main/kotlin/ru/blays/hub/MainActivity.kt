@@ -10,7 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.arkivanov.decompose.retainedComponent
-import ru.blays.hub.core.logic.components.rootComponents.RootComponent
+import ru.blays.hub.core.domain.components.rootComponents.RootComponent
 import ru.blays.hub.core.ui.screens.rootContent.RootContent
 import ru.blays.hub.core.ui.theme.BHubTheme
 

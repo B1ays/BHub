@@ -47,9 +47,9 @@ import coil.compose.AsyncImage
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import ru.blays.hub.core.logic.components.appsComponent.AppsComponent
-import ru.blays.hub.core.logic.data.models.AppCardModel
-import ru.blays.hub.core.logic.data.models.VersionType
+import ru.blays.hub.core.domain.components.appsComponent.AppsComponent
+import ru.blays.hub.core.domain.data.models.AppCardModel
+import ru.blays.hub.core.domain.data.models.VersionType
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingToolbar

@@ -18,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import ru.blays.hub.core.logic.components.settingsComponents.ThemeSettingsComponent
+import ru.blays.hub.core.domain.components.settingsComponents.ThemeSettingsComponent
 import ru.blays.hub.core.preferences.proto.ThemeType
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle

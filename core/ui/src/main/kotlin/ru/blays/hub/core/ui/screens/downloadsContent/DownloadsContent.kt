@@ -65,10 +65,10 @@ import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import ru.blays.hub.core.logic.components.downloadComponents.DownloadsListComponent
-import ru.blays.hub.core.logic.components.downloadComponents.DownloadsMenuComponent
-import ru.blays.hub.core.logic.data.models.ApkFile
-import ru.blays.hub.core.logic.utils.copyToClipboard
+import ru.blays.hub.core.domain.components.downloadComponents.DownloadsListComponent
+import ru.blays.hub.core.domain.components.downloadComponents.DownloadsMenuComponent
+import ru.blays.hub.core.domain.data.models.ApkFile
+import ru.blays.hub.core.domain.utils.copyToClipboard
 import ru.blays.hub.core.preferences.proto.FilesSortMethod
 import ru.blays.hub.core.preferences.proto.copy
 import ru.blays.hub.core.ui.R

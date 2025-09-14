@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import ru.blays.hub.core.logic.components.SelfUpdateComponent
-import ru.blays.hub.core.logic.components.rootComponents.TabsComponent
+import ru.blays.hub.core.domain.components.SelfUpdateComponent
+import ru.blays.hub.core.domain.components.rootComponents.TabsComponent
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.bubbleTabBar.BubbleTabBar
 import ru.blays.hub.core.ui.elements.bubbleTabBar.BubbleTabBarDefaults

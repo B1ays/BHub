@@ -16,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ru.blays.hub.core.logic.components.IInfoDialogConfig
-import ru.blays.hub.core.logic.components.InfoDialogComponent
+import ru.blays.hub.core.domain.components.IInfoDialogConfig
+import ru.blays.hub.core.domain.components.InfoDialogComponent
 import ru.blays.hub.core.ui.elements.spacers.HorizontalSpacer
 import ru.blays.hub.core.ui.elements.spacers.VerticalSpacer
 

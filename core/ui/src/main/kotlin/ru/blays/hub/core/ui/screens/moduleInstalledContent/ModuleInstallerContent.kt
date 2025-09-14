@@ -22,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import ru.blays.hub.core.logic.components.moduleInstallerComponents.ModuleInstallerComponent
-import ru.blays.hub.core.logic.data.models.ApkFile
+import ru.blays.hub.core.domain.components.moduleInstallerComponents.ModuleInstallerComponent
+import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingToolbar

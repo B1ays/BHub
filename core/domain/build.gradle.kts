@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.blays.hub.core.logic"
+    namespace = "ru.blays.hub.core.domain"
 
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
@@ -58,7 +58,7 @@ dependencies {
 
     // Modules
     implementation(projects.core.network)
-    implementation(projects.core.packageManager)
+    implementation(projects.core.packageManager.api)
     implementation(projects.core.packageManager.nonRoot)
     implementation(projects.core.packageManager.root)
     implementation(projects.core.packageManager.shizuku)

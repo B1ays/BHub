@@ -10,7 +10,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback
 import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback.predictiveBackAnimation
 import com.arkivanov.decompose.extensions.compose.stack.animation.scale
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import ru.blays.hub.core.logic.components.settingsComponents.SettingsRootComponent
+import ru.blays.hub.core.domain.components.settingsComponents.SettingsRootComponent
 import ru.blays.hub.core.ui.screens.settingsContent.developerMenuContent.DeveloperMenuRootContent
 
 @OptIn(ExperimentalDecomposeApi::class)

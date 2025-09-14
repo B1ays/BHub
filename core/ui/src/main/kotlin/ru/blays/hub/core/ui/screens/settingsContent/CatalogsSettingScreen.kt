@@ -53,9 +53,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import ru.blays.hub.core.logic.components.settingsComponents.catalogsSettings.AddCatalogComponent
-import ru.blays.hub.core.logic.components.settingsComponents.catalogsSettings.CatalogsSettingComponent
-import ru.blays.hub.core.logic.data.models.CatalogModel
+import ru.blays.hub.core.domain.components.settingsComponents.catalogsSettings.AddCatalogComponent
+import ru.blays.hub.core.domain.components.settingsComponents.catalogsSettings.CatalogsSettingComponent
+import ru.blays.hub.core.domain.data.models.CatalogModel
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.autoscaleText.AutoscaleText
 import ru.blays.hub.core.ui.elements.buttons.ActionButton

@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
-import ru.blays.hub.core.logic.data.models.AppUpdateInfoModel
-import ru.blays.hub.core.logic.utils.openInBrowser
+import ru.blays.hub.core.domain.data.models.AppUpdateInfoModel
+import ru.blays.hub.core.domain.utils.openInBrowser
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.autoscaleText.AutoscaleText
 import ru.blays.hub.core.ui.elements.spacers.VerticalSpacer

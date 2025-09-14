@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ru.blays.hub.core.logic.components.settingsComponents.MainSettingsComponent
+import ru.blays.hub.core.domain.components.settingsComponents.MainSettingsComponent
 import ru.blays.hub.core.preferences.proto.DownloadMode
 import ru.blays.hub.core.preferences.proto.DownloadModeSetting
 import ru.blays.hub.core.preferences.proto.PMType

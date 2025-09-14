@@ -28,9 +28,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.materialkolor.ktx.lighten
-import ru.blays.hub.core.logic.components.SelfUpdateComponent
-import ru.blays.hub.core.logic.components.settingsComponents.SelfUpdateSettingsComponent
-import ru.blays.hub.core.logic.data.models.AppUpdateInfoModel
+import ru.blays.hub.core.domain.components.SelfUpdateComponent
+import ru.blays.hub.core.domain.components.settingsComponents.SelfUpdateSettingsComponent
+import ru.blays.hub.core.domain.data.models.AppUpdateInfoModel
 import ru.blays.hub.core.preferences.proto.UpdateChannel
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle
