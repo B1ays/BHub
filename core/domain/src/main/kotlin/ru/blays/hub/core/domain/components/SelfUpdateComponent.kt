@@ -2,21 +2,12 @@ package ru.blays.hub.core.domain.components
 
 import android.content.Context
 import androidx.work.WorkManager
-import com.arkivanov.decompose.ComponentContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.component.inject
-import ru.blays.hub.core.downloader.DownloadMode
-import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.downloader.repository.DownloadsRepository
-import ru.blays.hub.core.logger.Logger
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.LocalizedMessage
 import ru.blays.hub.core.domain.data.getUpdateChannelUrl
@@ -26,6 +17,10 @@ import ru.blays.hub.core.domain.data.toDownloaderType
 import ru.blays.hub.core.domain.utils.currentLanguage
 import ru.blays.hub.core.domain.utils.downloadsFolder
 import ru.blays.hub.core.domain.workers.DownloadAndInstallWorker
+import ru.blays.hub.core.downloader.DownloadMode
+import ru.blays.hub.core.downloader.DownloadRequest
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
+import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.models.UpdateInfoModel
 import ru.blays.hub.core.network.repositories.appUpdatesRepository.AppUpdatesRepository
@@ -35,16 +30,16 @@ import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
 
-class SelfUpdateComponent(
-    componentContext: ComponentContext,
-    checkOnCreate: Boolean
-): ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
-    private val updatesRepository: AppUpdatesRepository by inject()
-    private val networkRepository: NetworkRepository by inject()
-    private val downloadsRepository: DownloadsRepository by inject()
-    private val context: Context by inject()
-
+class SelfUpdateComponent private constructor(
+    componentContext: AppComponentContext,
+    checkOnCreate: Boolean,
+    private val settingsRepository: SettingsRepository,
+    private val updatesRepository: AppUpdatesRepository,
+    private val networkRepository: NetworkRepository,
+    private val downloadsRepository: DownloadsRepository,
+    private val workManager: WorkManager,
+    private val context: Context,
+): AppComponentContext by componentContext {
     private val packageManager: PackageManager
         get() = getPackageManager(settingsRepository.pmType.realType)
     private val updateChannelUrl: String
@@ -53,8 +48,6 @@ class SelfUpdateComponent(
         get() = settingsRepository.downloadModeSetting.let { setting ->
             setting.mode.toDownloaderType(setting.triesNumber)
         }
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State.Idle)
 
@@ -74,7 +67,7 @@ class SelfUpdateComponent(
     }
 
     private fun refresh() {
-        coroutineScope.launch {
+        componentScope.launch {
             _state.update { State.Loading }
 
             when(
@@ -141,7 +134,6 @@ class SelfUpdateComponent(
             packageManagerType = settingsRepository.pmType.realType,
             packageName = context.packageName
         )
-        val workManager: WorkManager = get()
         workManager.enqueue(installRequest)
         _state.update { State.Downloading }
     }
@@ -184,6 +176,31 @@ class SelfUpdateComponent(
         data class Available(val updateInfo: AppUpdateInfoModel): State()
         data object NotAvailable: State()
         data object Downloading: State()
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val updatesRepository: AppUpdatesRepository,
+        private val networkRepository: NetworkRepository,
+        private val downloadsRepository: DownloadsRepository,
+        private val workManager: WorkManager,
+        private val context: Context,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            checkOnCreate: Boolean,
+        ): SelfUpdateComponent {
+            return SelfUpdateComponent(
+                componentContext = componentContext,
+                checkOnCreate = checkOnCreate,
+                settingsRepository = settingsRepository,
+                updatesRepository = updatesRepository,
+                networkRepository = networkRepository,
+                downloadsRepository = downloadsRepository,
+                workManager = workManager,
+                context = context
+            )
+        }
     }
 
     companion object {

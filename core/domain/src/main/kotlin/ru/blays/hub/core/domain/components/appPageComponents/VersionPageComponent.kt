@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.java.KoinJavaComponent.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.downloader.DownloadMode
 import ru.blays.hub.core.downloader.DownloadRequest
 import ru.blays.hub.core.logger.Logger
@@ -49,18 +51,17 @@ import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
 
-class VersionPageComponent(
-    componentContext: ComponentContext,
+class VersionPageComponent private constructor(
+    componentContext: AppComponentContext,
     private val config: VersionPageSlotConfig,
+    private val appsRepository: AppsRepository,
+    private val networkRepository: NetworkRepository,
+    private val settingsRepository: SettingsRepository,
+    private val workManager: WorkManager,
+    private val context: Context,
     private val onRefresh: () -> Unit,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val appsRepository: AppsRepository by inject()
-    private val networkRepository: NetworkRepository by inject()
-    private val settingsRepository: SettingsRepository by inject()
-    private val workManager: WorkManager by inject()
-    private val context: Context by inject()
-
+): AppComponentContext by componentContext {
     val packageManager: PackageManager
         get() = getPackageManager(pmType)
 
@@ -310,6 +311,33 @@ class VersionPageComponent(
         val apkListLoading: Boolean = false,
         val changelogLoading: Boolean = false
     )
+
+    class Factory(
+        private val appsRepository: AppsRepository,
+        private val networkRepository: NetworkRepository,
+        private val settingsRepository: SettingsRepository,
+        private val workManager: WorkManager,
+        private val context: Context,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            config: VersionPageSlotConfig,
+            onRefresh: () -> Unit,
+            onOutput: (Output) -> Unit
+        ): VersionPageComponent {
+            return VersionPageComponent(
+                componentContext = componentContext,
+                config = config,
+                appsRepository = appsRepository,
+                networkRepository = networkRepository,
+                settingsRepository = settingsRepository,
+                workManager = workManager,
+                context = context,
+                onRefresh = onRefresh,
+                onOutput = onOutput,
+            )
+        }
+    }
 }
 
 sealed class ApkInstallAction {

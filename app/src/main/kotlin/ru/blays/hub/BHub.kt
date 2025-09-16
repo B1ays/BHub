@@ -16,7 +16,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.lsposed.hiddenapibypass.HiddenApiBypass
-import ru.blays.hub.core.domain.coreModule
 import ru.blays.hub.core.domain.workers.CheckAppsUpdatesWorker
 import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.utils.coilDsl.crossfade
@@ -40,10 +39,7 @@ class BHub : Application(), ImageLoaderFactory {
         startKoin {
             androidContext(this@BHub)
             //analytics()
-            modules(
-                appModule,
-                coreModule
-            )
+            modules(appModule)
             workManagerFactory()
         }
         cancelPendingWorkManager()

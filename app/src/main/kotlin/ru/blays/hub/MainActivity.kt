@@ -9,7 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.arkivanov.decompose.retainedComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import org.koin.android.ext.android.inject
 import ru.blays.hub.core.domain.components.rootComponents.RootComponent
 import ru.blays.hub.core.ui.screens.rootContent.RootContent
 import ru.blays.hub.core.ui.theme.BHubTheme
@@ -20,8 +23,11 @@ class MainActivity: ComponentActivity() {
 
         enableEdgeToEdge()
 
-        val rootComponent = retainedComponent { rootContext ->
-            RootComponent(rootContext)
+        val rootComponentFactory: RootComponent.Factory by inject()
+        val rootComponent = retainedComponent(
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        ) { rootContext ->
+            rootComponentFactory(rootContext)
         }
 
         setContent {

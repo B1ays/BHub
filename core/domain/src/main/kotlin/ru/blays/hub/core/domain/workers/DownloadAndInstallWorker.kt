@@ -15,16 +15,15 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import kotlinx.serialization.json.Json
-import org.koin.mp.KoinPlatform.getKoin
-import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.domain.FLAG_REINSTALL
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.collectWhile
+import ru.blays.hub.core.downloader.DownloadRequest
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerResult
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.injectPackageManager
+import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
 import ru.blays.hub.utils.workerdsl.workData
 import java.io.File
@@ -52,7 +51,7 @@ internal class DownloadAndInstallWorker(
         val flags = inputData.getIntArray(FLAGS_KEY) ?: return Result.failure()
         val packageName = inputData.getString(PACKAGE_NAME_KEY) ?: return Result.failure()
 
-        val packageManager: PackageManager by getKoin().injectPackageManager(pmType)
+        val packageManager: PackageManager = getPackageManager(pmType)
 
         workerNotificationID = downloadRequest.hashCode()
         resultNotificationID = workerNotificationID + Random.nextInt()

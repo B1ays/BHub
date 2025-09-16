@@ -1,17 +1,14 @@
 package ru.blays.hub.core.domain.components.settingsComponents
 
 import androidx.compose.runtime.Stable
-import com.arkivanov.decompose.ComponentContext
-import org.koin.core.component.KoinComponent
+import ru.blays.hub.core.domain.AppComponentContext
 
 @Stable
-class SettingsComponent(
-    componentContext: ComponentContext,
+class SettingsComponent private constructor(
+    componentContext: AppComponentContext,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    fun onOutput(output: Output) {
-        onOutput.invoke(output)
-    }
+): AppComponentContext by componentContext{
+    fun onOutput(output: Output) = onOutput.invoke(output)
 
     sealed class Output {
         data object DeveloperMenu : Output()
@@ -19,5 +16,17 @@ class SettingsComponent(
         data object CatalogsSetting: Output()
         data object MainSettings: Output()
         data object SelfUpdateSettings: Output()
+    }
+
+    class Factory {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit
+        ): SettingsComponent {
+            return SettingsComponent(
+                componentContext = componentContext,
+                onOutput = onOutput
+            )
+        }
     }
 }

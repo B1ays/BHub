@@ -1,16 +1,28 @@
 package ru.blays.hub.core.domain.components
 
-import com.arkivanov.decompose.ComponentContext
+import ru.blays.hub.core.domain.AppComponentContext
 
-class AboutComponent(
-    componentContext: ComponentContext,
+class AboutComponent private constructor(
+    componentContext: AppComponentContext,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext {
+): AppComponentContext by componentContext {
     fun onOutput(output: Output) {
         onOutput.invoke(output)
     }
 
     sealed class Output {
         data object NavigateBack: Output()
+    }
+
+    class Factory {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit
+        ): AboutComponent {
+            return AboutComponent(
+                componentContext = componentContext,
+                onOutput = onOutput
+            )
+        }
     }
 }

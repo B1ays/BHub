@@ -1,7 +1,6 @@
 package ru.blays.hub.core.domain.components.appPageComponents
 
 import androidx.compose.runtime.Stable
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.router.pages.ChildPages
 import com.arkivanov.decompose.router.pages.Pages
@@ -10,18 +9,20 @@ import com.arkivanov.decompose.router.pages.childPages
 import com.arkivanov.decompose.router.pages.select
 import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.data.models.AppCardModel
 import ru.blays.hub.core.domain.data.models.VersionType
 
 @OptIn(ExperimentalDecomposeApi::class)
 @Stable
-class AppComponent(
-    componentContext: ComponentContext,
+class AppComponent private constructor(
+    componentContext: AppComponentContext,
     private val app: AppCardModel,
+    private val descriptionComponentFactory: AppDescriptionComponent.Factory,
+    private val versionsComponentFactory: AppVersionsListComponent.Factory,
     private val onRefresh: () -> Unit,
     private val onOutput: (Output) -> Unit,
-): ComponentContext by componentContext, KoinComponent {
+): AppComponentContext by componentContext {
     private val pagesNavigation = PagesNavigation<TabsConfiguration>()
 
     private var appDescriptionChild: TabsChild.Description? = null
@@ -56,11 +57,11 @@ class AppComponent(
 
     private fun pagesChildFactory(
         tabsConfiguration: TabsConfiguration,
-        componentContext: ComponentContext
+        componentContext: AppComponentContext
     ): TabsChild {
         return when(tabsConfiguration) {
             TabsConfiguration.Description -> appDescriptionChild ?: TabsChild.Description(
-                component = AppDescriptionComponent(
+                descriptionComponentFactory(
                     componentContext = componentContext,
                     app = app
                 )
@@ -68,7 +69,7 @@ class AppComponent(
                 appDescriptionChild = it
             }
             is TabsConfiguration.NonRoot -> nonRootVersionsChild ?: TabsChild.NonRoot(
-                component = AppVersionsListComponent(
+                versionsComponentFactory(
                     componentContext = componentContext,
                     app = app,
                     versionType = tabsConfiguration.versionType
@@ -77,7 +78,7 @@ class AppComponent(
                 nonRootVersionsChild = it
             }
             is TabsConfiguration.Root -> rootVersionsChild ?: TabsChild.Root(
-                component = AppVersionsListComponent(
+                versionsComponentFactory(
                     componentContext = componentContext,
                     app = app,
                     versionType = tabsConfiguration.versionType
@@ -109,6 +110,27 @@ class AppComponent(
 
     sealed class Output {
         data object NavigateBack: Output()
+    }
+
+    class Factory(
+        private val descriptionComponentFactory: AppDescriptionComponent.Factory,
+        private val versionsComponentFactory: AppVersionsListComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            app: AppCardModel,
+            onRefresh: () -> Unit,
+            onOutput: (Output) -> Unit,
+        ): AppComponent {
+            return AppComponent(
+                componentContext = componentContext,
+                app = app,
+                descriptionComponentFactory = descriptionComponentFactory,
+                versionsComponentFactory = versionsComponentFactory,
+                onRefresh = onRefresh,
+                onOutput = onOutput
+            )
+        }
     }
 }
 

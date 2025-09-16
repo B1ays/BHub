@@ -1,17 +1,23 @@
 package ru.blays.hub.core.domain.components.settingsComponents
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import kotlinx.serialization.Serializable
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.components.settingsComponents.catalogsSettings.CatalogsSettingComponent
 import ru.blays.hub.core.domain.components.settingsComponents.developerMenu.DeveloperMenuRootComponent
 
-class SettingsRootComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext {
+class SettingsRootComponent private constructor(
+    componentContext: AppComponentContext,
+    private val settingsComponentFactory: SettingsComponent.Factory,
+    private val developerComponentFactory: DeveloperMenuRootComponent.Factory,
+    private val catalogComponentFactory: CatalogsSettingComponent.Factory,
+    private val mainComponentFactory: MainSettingsComponent.Factory,
+    private val updateComponentFactory: SelfUpdateSettingsComponent.Factory,
+    private val themeComponentFactory: ThemeSettingsComponent.Factory,
+): AppComponentContext by componentContext {
     private val navigation = StackNavigation<Configuration>()
 
     val childStack = childStack(
@@ -24,40 +30,43 @@ class SettingsRootComponent(
 
     fun onBackClicked() = navigation.pop()
 
-    private fun childFactory(configuration: Configuration, childContext: ComponentContext): Child {
+    private fun childFactory(
+        configuration: Configuration,
+        childContext: AppComponentContext
+    ): Child {
         return when(configuration) {
             Configuration.SettingGroups -> Child.SettingGroups(
-                SettingsComponent(
+                settingsComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onSettingsOutput
                 )
             )
             Configuration.DeveloperMenu -> Child.DeveloperMenu(
-                DeveloperMenuRootComponent(
+                developerComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onDevMenuOutput
                 )
             )
             Configuration.CatalogsSetting -> Child.CatalogsSetting(
-                CatalogsSettingComponent(
+                catalogComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onCatalogsSettingOutput
                 )
             )
             Configuration.MainSettings -> Child.MainSettings(
-                MainSettingsComponent(
+                mainComponentFactory(
                     componentContext = childContext,
-                    onOutput = ::onMainSettingsOutput
+                    onOutput = ::onMainSettingsOutput,
                 )
             )
             Configuration.SelfUpdateSettings -> Child.SelfUpdateSettings(
-                SelfUpdateSettingsComponent(
+                updateComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onSelfUpdateSettingsOutput
                 )
             )
             Configuration.ThemeSettings -> Child.ThemeSettings(
-                ThemeSettingsComponent(
+                themeComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onThemeSettingsOutput
                 )
@@ -125,6 +134,7 @@ class SettingsRootComponent(
         @Serializable
         data object DeveloperMenu: Configuration()
     }
+
     sealed class Child {
         data class SettingGroups(
             val component: SettingsComponent
@@ -136,5 +146,29 @@ class SettingsRootComponent(
         data class DeveloperMenu(
             val component: DeveloperMenuRootComponent
         ): Child()
+    }
+
+    class Factory(
+        private val settingsComponentFactory: SettingsComponent.Factory,
+        private val developerComponentFactory: DeveloperMenuRootComponent.Factory,
+        private val catalogComponentFactory: CatalogsSettingComponent.Factory,
+        private val mainComponentFactory: MainSettingsComponent.Factory,
+        private val updateComponentFactory: SelfUpdateSettingsComponent.Factory,
+        private val themeComponentFactory: ThemeSettingsComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+
+        ): SettingsRootComponent {
+            return SettingsRootComponent(
+                componentContext = componentContext,
+                settingsComponentFactory = settingsComponentFactory,
+                developerComponentFactory = developerComponentFactory,
+                catalogComponentFactory = catalogComponentFactory,
+                mainComponentFactory = mainComponentFactory,
+                updateComponentFactory = updateComponentFactory,
+                themeComponentFactory = themeComponentFactory,
+            )
+        }
     }
 }

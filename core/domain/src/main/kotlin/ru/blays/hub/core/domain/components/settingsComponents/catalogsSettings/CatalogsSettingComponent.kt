@@ -2,16 +2,12 @@ package ru.blays.hub.core.domain.components.settingsComponents.catalogsSettings
 
 import android.content.Context
 import android.widget.Toast
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.essenty.lifecycle.doOnCreate
-import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,23 +15,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.serializer
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.data.repositories.CatalogsRepository
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.models.CatalogModel
 import ru.blays.hub.core.domain.utils.mutate
 import ru.blays.hub.core.domain.utils.replace
 
-class CatalogsSettingComponent(
-    componentContext: ComponentContext,
+class CatalogsSettingComponent private constructor(
+    componentContext: AppComponentContext,
+    private val catalogsRepository: CatalogsRepository,
+    private val context: Context,
+    private val addCatalogComponentFactory: AddCatalogComponent.Factory,
     private val onOutput: (output: Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val catalogsRepository: CatalogsRepository by inject()
-    private val context: Context by inject()
-
+): AppComponentContext by componentContext {
     private val slotNavigation: SlotNavigation<Unit> = SlotNavigation()
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     private val _state = MutableStateFlow(State())
 
     val state: StateFlow<State> = _state.asStateFlow()
@@ -45,7 +40,7 @@ class CatalogsSettingComponent(
         initialConfiguration = { null },
         serializer = Unit.serializer(),
     ) { _, childContext ->
-        AddCatalogComponent(
+        addCatalogComponentFactory(
             componentContext = childContext,
             onOutput = ::onAddCatalogOutput,
             checkCatalogExists = ::checkCatalogExists
@@ -78,7 +73,7 @@ class CatalogsSettingComponent(
     }
 
     private fun addCatalog(catalog: CatalogModel) {
-        coroutineScope.launch {
+        componentScope.launch {
             val rowId = catalogsRepository.addCatalog(
                 catalog.toDbEntity()
             )
@@ -95,7 +90,7 @@ class CatalogsSettingComponent(
         catalog: CatalogModel,
         enabled: Boolean
     ) {
-        coroutineScope.launch {
+        componentScope.launch {
             if(state.value.catalogs.size == 1) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -121,7 +116,7 @@ class CatalogsSettingComponent(
     }
 
     private fun deleteCatalog(catalog: CatalogModel) {
-        coroutineScope.launch {
+        componentScope.launch {
             catalogsRepository.deleteCatalog(catalog.id)
             _state.update {
                 it.copy(
@@ -132,7 +127,7 @@ class CatalogsSettingComponent(
     }
 
     private fun clearCatalogs() {
-        coroutineScope.launch {
+        componentScope.launch {
             catalogsRepository.clearCatalogs()
             _state.update {
                 it.copy(
@@ -147,7 +142,7 @@ class CatalogsSettingComponent(
     }
 
     private fun refresh() {
-        coroutineScope.launch {
+        componentScope.launch {
             _state.update { it.copy(loading = true) }
             val catalogs = catalogsRepository
                 .getAllCatalogs()
@@ -163,7 +158,6 @@ class CatalogsSettingComponent(
 
     init {
         lifecycle.doOnCreate { refresh() }
-        lifecycle.doOnDestroy { coroutineScope.cancel() }
     }
 
     data class State(
@@ -184,5 +178,24 @@ class CatalogsSettingComponent(
 
     sealed class Output {
         data object NavigateBack: Output()
+    }
+
+    class Factory(
+        private val catalogsRepository: CatalogsRepository,
+        private val context: Context,
+        private val addCatalogComponentFactory: AddCatalogComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (output: Output) -> Unit
+        ): CatalogsSettingComponent {
+            return CatalogsSettingComponent(
+                componentContext = componentContext,
+                catalogsRepository = catalogsRepository,
+                context = context,
+                addCatalogComponentFactory = addCatalogComponentFactory,
+                onOutput = onOutput
+            )
+        }
     }
 }

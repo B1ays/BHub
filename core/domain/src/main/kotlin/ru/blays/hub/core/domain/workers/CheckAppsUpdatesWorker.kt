@@ -18,7 +18,7 @@ import ru.blays.hub.core.domain.utils.VersionName.Companion.toVersionName
 import ru.blays.hub.core.domain.utils.launchSelfIntent
 import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.injectPackageManager
+import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.utils.workerdsl.constraints
 import ru.blays.hub.utils.workerdsl.periodicWorkRequest
@@ -32,7 +32,7 @@ class CheckAppsUpdatesWorker(
     private val catalogsRepository: CatalogsRepository,
     private val settingsRepository: SettingsRepository
 ) : CoroutineWorker(appContext, params), KoinComponent {
-    private val packageManager by injectPackageManager(PackageManagerType.NonRoot)
+    private val packageManager = getPackageManager(PackageManagerType.NonRoot)
     private val notificationManager = appContext.getSystemService<NotificationManager>()!!
 
     private val contentIntent = appContext.launchSelfIntent

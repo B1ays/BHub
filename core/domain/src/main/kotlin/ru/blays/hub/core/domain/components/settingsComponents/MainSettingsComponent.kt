@@ -3,16 +3,10 @@ package ru.blays.hub.core.domain.components.settingsComponents
 import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
-import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.deviceUtils.DeviceInfo
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.utils.validateSettings
 import ru.blays.hub.core.domain.workers.CheckAppsUpdatesWorker
 import ru.blays.hub.core.preferences.SettingsRepository
@@ -21,16 +15,13 @@ import ru.blays.hub.core.preferences.proto.PMType
 import ru.blays.hub.core.preferences.proto.SettingsKt
 import ru.blays.hub.core.preferences.proto.UpdateChannel
 
-class MainSettingsComponent(
-    componentContext: ComponentContext,
+class MainSettingsComponent private constructor(
+    componentContext: AppComponentContext,
+    private val settingsRepository: SettingsRepository,
+    private val context: Context,
+    private val workManager: WorkManager,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
-    private val context: Context by inject()
-    private val workManager: WorkManager by inject()
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
+): AppComponentContext by componentContext {
     val rootAvailable = DeviceInfo.isRootGranted
 
     val pmTypeFlow: StateFlow<PMType>
@@ -56,7 +47,7 @@ class MainSettingsComponent(
     fun onOutput(output: Output) = onOutput.invoke(output)
 
     fun setValue(transform: SettingsKt.Dsl.() -> Unit) {
-        coroutineScope.launch {
+        componentScope.launch {
             settingsRepository.setValue(transform)
             settingsRepository.validateSettings(context)
         }
@@ -102,13 +93,26 @@ class MainSettingsComponent(
         }
     }
 
-    init {
-        lifecycle.doOnDestroy {
-            coroutineScope.cancel()
-        }
-    }
-
     sealed class Output {
         data object NavigateBack : Output()
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val context: Context,
+        private val workManager: WorkManager,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit
+        ): MainSettingsComponent {
+            return MainSettingsComponent(
+                componentContext = componentContext,
+                settingsRepository = settingsRepository,
+                context = context,
+                workManager = workManager,
+                onOutput = onOutput
+            )
+        }
     }
 }

@@ -1,21 +1,15 @@
 package ru.blays.hub.core.domain.components.appPageComponents
 
 import android.content.Context
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.LocalizedMessage
 import ru.blays.hub.core.domain.data.models.AppCardModel
@@ -25,14 +19,11 @@ import ru.blays.hub.core.network.okHttpDsl.fullUrlString
 import ru.blays.hub.core.network.repositories.networkRepository.NetworkRepository
 
 class AppDescriptionComponent(
-    componentContext: ComponentContext,
+    componentContext: AppComponentContext,
     private val app: AppCardModel,
-): ComponentContext by componentContext, KoinComponent {
-    private val networkRepository: NetworkRepository by inject()
-    private val context: Context by inject()
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
+    private val networkRepository: NetworkRepository,
+    private val context: Context,
+): AppComponentContext by componentContext {
     private val _state: MutableStateFlow<State> = MutableStateFlow(
         if(app.appInfo != null) State.Loading else State.NotProvided
     )
@@ -49,7 +40,7 @@ class AppDescriptionComponent(
     private fun refresh() {
         val appInfo = app.appInfo ?: return
         if(state.value == State.NotProvided) return
-        coroutineScope.launch {
+        componentScope.launch {
             _state.update { State.Loading }
             val readmeResult = networkRepository.getString(
                 fullUrlString(app.sourceUrl, appInfo.readmeHref)
@@ -87,9 +78,6 @@ class AppDescriptionComponent(
                 refresh()
             }
         }
-        lifecycle.doOnDestroy {
-            coroutineScope.cancel()
-        }
     }
 
     sealed class Intent {
@@ -105,5 +93,22 @@ class AppDescriptionComponent(
             val readme: String?,
             val images: PersistentList<*>,
         ): State()
+    }
+
+    class Factory(
+        private val networkRepository: NetworkRepository,
+        private val context: Context
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            app: AppCardModel,
+        ): AppDescriptionComponent {
+            return AppDescriptionComponent(
+                componentContext = componentContext,
+                app = app,
+                networkRepository = networkRepository,
+                context = context
+            )
+        }
     }
 }

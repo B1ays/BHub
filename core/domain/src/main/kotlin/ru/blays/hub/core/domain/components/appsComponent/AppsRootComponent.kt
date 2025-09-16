@@ -1,17 +1,19 @@
 package ru.blays.hub.core.domain.components.appsComponent
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import kotlinx.serialization.Serializable
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.components.appPageComponents.AppComponent
 import ru.blays.hub.core.domain.data.models.AppCardModel
 
-class AppsRootComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext {
+class AppsRootComponent private constructor(
+    componentContext: AppComponentContext,
+    private val appComponentFactory: AppComponent.Factory,
+    private val appsComponentFactory: AppsComponent.Factory,
+): AppComponentContext by componentContext {
     private val navigation = StackNavigation<Configuration>()
 
     private var cacheAppsChild: Child.Apps? = null
@@ -28,11 +30,11 @@ class AppsRootComponent(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext
+        childContext: AppComponentContext
     ): Child {
         return when(configuration) {
             is Configuration.App -> Child.App(
-                AppComponent(
+                appComponentFactory(
                     componentContext = childContext,
                     app = configuration.app,
                     onRefresh = {
@@ -44,7 +46,7 @@ class AppsRootComponent(
                 )
             )
             is Configuration.Apps -> cacheAppsChild ?: Child.Apps(
-                AppsComponent(
+                appsComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onAppsOutput
                 )
@@ -79,5 +81,20 @@ class AppsRootComponent(
     sealed class Child {
         data class Apps(val component: AppsComponent): Child()
         data class App(val component: AppComponent): Child()
+    }
+
+    class Factory(
+        private val appComponentFactory: AppComponent.Factory,
+        private val appsComponentFactory: AppsComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+        ): AppsRootComponent {
+            return AppsRootComponent(
+                componentContext = componentContext,
+                appComponentFactory = appComponentFactory,
+                appsComponentFactory = appsComponentFactory
+            )
+        }
     }
 }

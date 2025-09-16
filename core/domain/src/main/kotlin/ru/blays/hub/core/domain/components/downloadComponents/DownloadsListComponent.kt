@@ -6,13 +6,9 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import androidx.compose.runtime.Stable
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import ru.blays.hub.core.downloader.DownloadTask
-import ru.blays.hub.core.downloader.repository.DownloadsRepository
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.domain.data.models.ApkInfo
 import ru.blays.hub.core.domain.data.realType
@@ -32,6 +25,8 @@ import ru.blays.hub.core.domain.utils.getUriForFile
 import ru.blays.hub.core.domain.utils.isApkFile
 import ru.blays.hub.core.domain.utils.readableDate
 import ru.blays.hub.core.domain.utils.readableSize
+import ru.blays.hub.core.downloader.DownloadTask
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.packageManager.api.utils.getPackageInfo
 import ru.blays.hub.core.preferences.SettingsRepository
@@ -39,16 +34,14 @@ import ru.blays.hub.core.preferences.proto.FilesSortMethod
 import ru.blays.hub.core.preferences.proto.FilesSortSetting
 import java.io.File
 
-class DownloadsListComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext, KoinComponent {
-    private val downloadsRepository: DownloadsRepository by inject()
-    private val settingsRepository: SettingsRepository by inject()
-
-    private val context: Context by inject()
+class DownloadsListComponent private constructor(
+    componentContext: AppComponentContext,
+    private val downloadsRepository: DownloadsRepository,
+    private val settingsRepository: SettingsRepository,
+    private val context: Context,
+    private val menuComponentFactory: DownloadsMenuComponent.Factory,
+): AppComponentContext by componentContext {
     private val packageManager by lazy(context::getPackageManager)
-
-    private val scope = CoroutineScope(Dispatchers.Default)
 
     private val _state = MutableStateFlow(State())
 
@@ -56,7 +49,7 @@ class DownloadsListComponent(
         get() = _state.asStateFlow()
 
     val menuComponent: DownloadsMenuComponent by lazy {
-        DownloadsMenuComponent(
+        menuComponentFactory(
             componentContext = childContext("DownloadsMenuComponent"),
             onIntent = ::onMenuIntent
         )
@@ -112,13 +105,13 @@ class DownloadsListComponent(
     }
 
     private fun installApk(file: ApkFile) {
-        scope.launch {
+        componentScope.launch {
             val packageManager = getPackageManager(settingsRepository.pmType.realType)
             packageManager.installApp(file.file)
         }
     }
 
-    private fun refresh() = scope.launch {
+    private fun refresh() = componentScope.launch {
         _state.update {
             it.copy(downloadedFiles = emptyList())
         }
@@ -126,13 +119,13 @@ class DownloadsListComponent(
     }
 
     private fun clearAll() {
-        scope.launch {
+        componentScope.launch {
             state.value.downloadedFiles.forEach(::deleteFile)
         }
     }
 
     private fun changeSortSetting(setting: FilesSortSetting) {
-        scope.launch {
+        componentScope.launch {
             settingsRepository.setValue {
                 filesSortSetting = setting
             }
@@ -234,7 +227,7 @@ class DownloadsListComponent(
             }
         }
         val onTaskFinishedListener = DownloadsRepository.OnTaskFinishedListener { task ->
-            scope.launch {
+            componentScope.launch {
                 _state.update { oldState ->
                     oldState.copy(
                         tasks = oldState.tasks.filterNot { it.filePath == task.filePath },
@@ -245,7 +238,7 @@ class DownloadsListComponent(
             }
         }
         lifecycle.doOnCreate {
-            scope.launch {
+            componentScope.launch {
                 loadExistingTasks()
                 loadExistingFiles()
             }
@@ -258,7 +251,6 @@ class DownloadsListComponent(
             downloadsRepository -= onTaskAddedListener
             downloadsRepository -= onTaskRemovedListener
             downloadsRepository -= onTaskFinishedListener
-            scope.cancel()
         }
     }
 
@@ -268,6 +260,7 @@ class DownloadsListComponent(
         val loading: Boolean = false,
     )
 
+    @ConsistentCopyVisibility
     @Stable
     data class Task internal constructor(
         val name: String,
@@ -283,5 +276,24 @@ class DownloadsListComponent(
         data class OpenFile(val file: ApkFile) : Intent()
         data class DeleteFile(val file: ApkFile) : Intent()
         data class InstallApk(val file: ApkFile) : Intent()
+    }
+
+    class Factory(
+        private val downloadsRepository: DownloadsRepository,
+        private val settingsRepository: SettingsRepository,
+        private val context: Context,
+        private val menuComponentFactory: DownloadsMenuComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+        ): DownloadsListComponent {
+            return DownloadsListComponent(
+                componentContext = componentContext,
+                downloadsRepository = downloadsRepository,
+                settingsRepository = settingsRepository,
+                context = context,
+                menuComponentFactory = menuComponentFactory,
+            )
+        }
     }
 }

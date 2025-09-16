@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentFilter
 import android.os.Build
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.childContext
 import com.arkivanov.decompose.router.slot.SlotNavigation
@@ -18,10 +17,9 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.deviceUtils.DeviceUtils
 import ru.blays.hub.core.domain.ACTION_MODULE_INSTALL
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.components.AboutComponent
 import ru.blays.hub.core.domain.components.InfoDialogComponent
@@ -36,9 +34,16 @@ import ru.blays.hub.core.packageManager.api.ACTION_APP_UNINSTALL
 
 @OptIn(ExperimentalDecomposeApi::class)
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-class TabsComponent(
-    componentContext: ComponentContext,
-) : ComponentContext by componentContext, KoinComponent {
+class TabsComponent private constructor(
+    componentContext: AppComponentContext,
+    private val context: Context,
+    private val infoComponentFactory: InfoDialogComponent.Factory,
+    private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
+    private val appsComponentFactory: AppsRootComponent.Factory,
+    private val settingsComponentFactory: SettingsRootComponent.Factory,
+    private val aboutComponentFactory: AboutComponent.Factory,
+    private val downloadsComponentFactory: DownloadsListComponent.Factory,
+) : AppComponentContext by componentContext {
     private val stackNavigation = StackNavigation<Configuration>()
     private val pmDialogNavigation = SlotNavigation<InfoDialogConfig>()
     private val mmDialogNavigation = SlotNavigation<InfoDialogConfig>()
@@ -57,7 +62,7 @@ class TabsComponent(
         serializer = InfoDialogConfig.serializer(),
         key = "pmResultDialog"
     ) { config, childContext ->
-        InfoDialogComponent<InfoDialogConfig, AppInstallDialogActions>(
+        infoComponentFactory<InfoDialogConfig, AppInstallDialogActions>(
             componentContext = childContext,
             state = config,
             onAction = { action ->
@@ -84,7 +89,7 @@ class TabsComponent(
             }
         )
     }
-    val selfUpdateComponent = SelfUpdateComponent(
+    val selfUpdateComponent = selfUpdateComponentFactory(
         componentContext = childContext("selfUpdateComponent"),
         checkOnCreate = true
     )
@@ -95,25 +100,24 @@ class TabsComponent(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext,
+        childContext: AppComponentContext,
     ): Child = when (configuration) {
         is Configuration.Apps -> Child.Apps(
-            AppsRootComponent(childContext)
+            appsComponentFactory(
+                componentContext = childContext
+            )
         )
-
         is Configuration.Settings -> Child.Settings(
-            SettingsRootComponent(childContext)
+            settingsComponentFactory(childContext)
         )
-
         is Configuration.About -> Child.About(
-            AboutComponent(
+            aboutComponentFactory(
                 componentContext = childContext,
                 onOutput = ::onAboutOutput
             )
         )
-
         is Configuration.Downloads -> Child.Downloads(
-            DownloadsListComponent(childContext)
+            downloadsComponentFactory(childContext)
         )
     }
 
@@ -124,7 +128,6 @@ class TabsComponent(
     }
 
     init {
-        val context: Context by inject()
         val receiver = packageManagerReceiver { action, success, message ->
             when(action) {
                 ACTION_APP_INSTALL -> {
@@ -241,5 +244,30 @@ class TabsComponent(
     sealed class ModuleInstallDialogActions {
         data object Close : ModuleInstallDialogActions()
         data object Reboot : ModuleInstallDialogActions()
+    }
+
+    class Factory(
+        private val context: Context,
+        private val infoComponentFactory: InfoDialogComponent.Factory,
+        private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
+        private val appsComponentFactory: AppsRootComponent.Factory,
+        private val settingsComponentFactory: SettingsRootComponent.Factory,
+        private val aboutComponentFactory: AboutComponent.Factory,
+        private val downloadsComponentFactory: DownloadsListComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+        ): TabsComponent {
+            return TabsComponent(
+                componentContext = componentContext,
+                context = context,
+                infoComponentFactory = infoComponentFactory,
+                selfUpdateComponentFactory = selfUpdateComponentFactory,
+                appsComponentFactory = appsComponentFactory,
+                settingsComponentFactory = settingsComponentFactory,
+                aboutComponentFactory = aboutComponentFactory,
+                downloadsComponentFactory = downloadsComponentFactory,
+            )
+        }
     }
 }

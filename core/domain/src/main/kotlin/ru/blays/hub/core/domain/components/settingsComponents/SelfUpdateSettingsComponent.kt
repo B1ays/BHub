@@ -1,21 +1,19 @@
 package ru.blays.hub.core.domain.components.settingsComponents
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.childContext
 import kotlinx.coroutines.flow.StateFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.components.SelfUpdateComponent
 import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.core.preferences.proto.UpdateChannel
 
-class SelfUpdateSettingsComponent(
-    componentContext: ComponentContext,
+class SelfUpdateSettingsComponent private constructor(
+    componentContext: AppComponentContext,
+    private val settingsRepository: SettingsRepository,
+    private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
     private val onOutput: (output: Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
-
-    val selfUpdateComponent: SelfUpdateComponent = SelfUpdateComponent(
+): AppComponentContext by componentContext {
+    val selfUpdateComponent: SelfUpdateComponent = selfUpdateComponentFactory(
         componentContext = childContext("selfUpdateComponent"),
         checkOnCreate = false
     )
@@ -45,5 +43,22 @@ class SelfUpdateSettingsComponent(
 
     sealed class Output {
         data object NavigateBack : Output()
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (output: Output) -> Unit
+        ): SelfUpdateSettingsComponent {
+            return SelfUpdateSettingsComponent(
+                componentContext = componentContext,
+                settingsRepository = settingsRepository,
+                selfUpdateComponentFactory = selfUpdateComponentFactory,
+                onOutput = onOutput
+            )
+        }
     }
 }

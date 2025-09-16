@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.PowerManager
 import androidx.compose.runtime.Stable
 import androidx.core.content.getSystemService
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.childStack
@@ -24,11 +23,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import rikka.shizuku.Shizuku
 import ru.blays.hub.core.deviceUtils.ShizukuState
 import ru.blays.hub.core.deviceUtils.shizukuState
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.collectWhile
 import ru.blays.hub.core.domain.utils.validateSettings
@@ -39,18 +37,14 @@ import ru.blays.hub.core.preferences.proto.ThemeSettings
 
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 @Stable
-class RootComponent internal constructor(
-    componentContext: ComponentContext,
-    private val initialConfiguration: Configuration = Configuration.Tabs,
-) : ComponentContext by componentContext, KoinComponent {
-    constructor(componentContext: ComponentContext) : this(
-        componentContext,
-        Configuration.Tabs
-    )
-
-    private val settingsRepository: SettingsRepository by inject()
-    private val context: Context by inject()
-
+class RootComponent private constructor(
+    componentContext: AppComponentContext,
+    private val initialConfiguration: Configuration,
+    private val settingsRepository: SettingsRepository,
+    private val context: Context,
+    private val tabsComponentFactory: TabsComponent.Factory,
+    private val dialogsComponentFactory: DialogsComponent.Factory,
+) : AppComponentContext by componentContext {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
     private val stackNavigation = StackNavigation<Configuration>()
@@ -68,15 +62,14 @@ class RootComponent internal constructor(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext,
+        childContext: AppComponentContext,
     ): Child = when (configuration) {
         is Configuration.Tabs -> Child.Tabs(
-            TabsComponent(childContext)
+            tabsComponentFactory(componentContext = childContext)
         )
-
         is Configuration.Splash -> Child.Splash
         is Configuration.RootDialog -> Child.RootDialog(
-            DialogsComponent(
+            dialogsComponentFactory(
                 componentContext = childContext,
                 configurations = configuration.configurations,
                 onOutput = ::onDialogsComponentOutput
@@ -257,5 +250,26 @@ class RootComponent internal constructor(
         data class Tabs(val component: TabsComponent) : Child()
         data class RootDialog(val component: DialogsComponent) : Child()
         data object Splash : Child()
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val context: Context,
+        private val tabsComponentFactory: TabsComponent.Factory,
+        private val dialogsComponentFactory: DialogsComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            initialConfiguration: Configuration = Configuration.Tabs,
+        ): RootComponent {
+            return RootComponent(
+                componentContext = componentContext,
+                initialConfiguration = initialConfiguration,
+                settingsRepository = settingsRepository,
+                context = context,
+                tabsComponentFactory = tabsComponentFactory,
+                dialogsComponentFactory = dialogsComponentFactory,
+            )
+        }
     }
 }

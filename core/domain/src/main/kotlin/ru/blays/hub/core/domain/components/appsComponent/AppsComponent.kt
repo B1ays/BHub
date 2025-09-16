@@ -2,16 +2,11 @@ package ru.blays.hub.core.domain.components.appsComponent
 
 import android.content.Context
 import androidx.compose.runtime.Stable
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,11 +16,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.data.repositories.CatalogsRepository
 import ru.blays.hub.core.data.room.entities.CatalogEntity
 import ru.blays.hub.core.domain.APPS_HREF
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.LocalizationsMap
 import ru.blays.hub.core.domain.data.models.AppCardModel
@@ -45,18 +39,15 @@ import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 
 @Stable
-class AppsComponent(
-    componentContext: ComponentContext,
+class AppsComponent private constructor(
+    componentContext: AppComponentContext,
+    private val settingsRepository: SettingsRepository,
+    private val catalogsRepository: CatalogsRepository,
+    private val appsRepository: AppsRepository,
+    private val moduleManager: ModuleManager,
+    private val context: Context,
     private val onOutput: (Output) -> Unit
-) : ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
-    private val catalogsRepository: CatalogsRepository by inject()
-    private val appsRepository: AppsRepository by inject()
-    private val moduleManager: ModuleManager by inject()
-    private val context: Context by inject()
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
+) : AppComponentContext by componentContext {
     private val packageManager: PackageManager
         get() = getPackageManager(settingsRepository.pmType.realType)
 
@@ -66,7 +57,7 @@ class AppsComponent(
         .getEnabledCatalogsAsFlow()
         .distinctUntilChanged()
         .stateIn(
-            scope = coroutineScope,
+            scope = componentScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = emptyList()
         )
@@ -80,12 +71,10 @@ class AppsComponent(
         }
     }
 
-    fun onOutput(output: Output) {
-        onOutput.invoke(output)
-    }
+    fun onOutput(output: Output) = onOutput.invoke(output)
 
     private fun refresh(catalogs: List<CatalogEntity>) {
-        coroutineScope.launch {
+        componentScope.launch {
             _state.value = State.Loading
             val groupsDeferred = catalogs
                 .map { catalog ->
@@ -212,14 +201,11 @@ class AppsComponent(
 
     init {
         lifecycle.doOnCreate {
-            coroutineScope.launch {
+            componentScope.launch {
                 catalogsFlow.collect {
                     refresh(it)
                 }
             }
-        }
-        lifecycle.doOnDestroy {
-            coroutineScope.cancel()
         }
     }
 
@@ -239,6 +225,29 @@ class AppsComponent(
                 val catalogName: String,
                 internal val catalogUrl: String,
                 val apps: List<AppCardModel>
+            )
+        }
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val catalogsRepository: CatalogsRepository,
+        private val appsRepository: AppsRepository,
+        private val moduleManager: ModuleManager,
+        private val context: Context,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit,
+        ): AppsComponent {
+            return AppsComponent(
+                componentContext = componentContext,
+                settingsRepository = settingsRepository,
+                catalogsRepository = catalogsRepository,
+                appsRepository = appsRepository,
+                moduleManager = moduleManager,
+                context = context,
+                onOutput = onOutput
             )
         }
     }

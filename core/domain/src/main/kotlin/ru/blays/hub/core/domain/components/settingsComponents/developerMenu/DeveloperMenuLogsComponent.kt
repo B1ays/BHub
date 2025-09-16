@@ -1,25 +1,22 @@
 package ru.blays.hub.core.domain.components.settingsComponents.developerMenu
 
 import android.content.Context
-import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import ru.blays.hub.core.logger.Logger
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.utils.copyToClipboard
 import ru.blays.hub.core.domain.utils.getUriForFile
 import ru.blays.hub.core.domain.utils.readableSize
 import ru.blays.hub.core.domain.utils.share
+import ru.blays.hub.core.logger.Logger
 
-class DeveloperMenuLogsComponent(
-    componentContext: ComponentContext,
+class DeveloperMenuLogsComponent private constructor(
+    componentContext: AppComponentContext,
+    private val context: Context,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val context: Context by inject()
-
+): AppComponentContext by componentContext {
     private val logFile = Logger.file
 
     private val _state = MutableStateFlow(
@@ -84,4 +81,19 @@ class DeveloperMenuLogsComponent(
         val logs: List<String>,
         val fileSize: String
     )
+
+    class Factory(
+        private val context: Context,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit
+        ): DeveloperMenuLogsComponent {
+            return DeveloperMenuLogsComponent(
+                componentContext = componentContext,
+                context = context,
+                onOutput = onOutput
+            )
+        }
+    }
 }

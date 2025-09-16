@@ -2,25 +2,19 @@ package ru.blays.hub.core.domain.components.moduleInstallerComponents
 
 import android.content.Context
 import android.net.Uri
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.internal.closeQuietly
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.deviceUtils.DeviceInfo
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.domain.data.models.ApkInfo
 import ru.blays.hub.core.domain.data.realType
-import ru.blays.hub.core.domain.utils.getService
 import ru.blays.hub.core.domain.utils.readableDate
 import ru.blays.hub.core.domain.utils.readableSize
 import ru.blays.hub.core.moduleManager.ModuleManager
@@ -30,23 +24,19 @@ import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.packageManager.api.utils.getPackageInfo
 import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
-import android.content.pm.PackageManager as AndroidPackageManager
 
 class ModuleInstallerComponent(
-    componentContext: ComponentContext,
+    componentContext: AppComponentContext,
+    private val moduleManager: ModuleManager,
+    private val settingsRepository: SettingsRepository,
+    private val context: Context,
     private val modApk: ApkFile,
     private val origApk: ApkFile? = null,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val context: Context by inject()
-    private val settingsRepository: SettingsRepository by inject()
-
-    private val moduleManager: ModuleManager by inject()
-    private val androidPackageManager = context.getService<AndroidPackageManager>()
+): AppComponentContext by componentContext {
+    private val androidPackageManager = context.packageManager
     private val packageManager: PackageManager
         get() = getPackageManager(settingsRepository.pmType.realType)
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private var tempFile: File? = null
 
@@ -91,7 +81,7 @@ class ModuleInstallerComponent(
     }
 
     private fun onFilePicked(uri: Uri?) {
-        coroutineScope.launch {
+        componentScope.launch {
             if(uri == null) {
                 when(val stateValue = state.value) {
                     is State.NeedToPickOrig -> {
@@ -182,13 +172,12 @@ class ModuleInstallerComponent(
 
     init {
         lifecycle.doOnCreate {
-            coroutineScope.launch {
+            componentScope.launch {
                 _state.update { createState() }
             }
         }
         lifecycle.doOnDestroy {
             tempFile?.delete()
-            coroutineScope.cancel()
         }
     }
 

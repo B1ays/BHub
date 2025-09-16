@@ -1,20 +1,16 @@
 package ru.blays.hub.core.domain.components.settingsComponents.catalogsSettings
 
 import android.content.Context
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceAll
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.CATALOG_PROPS_HREF
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.models.CatalogModel
@@ -23,16 +19,14 @@ import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.okHttpDsl.fullUrlStringOrNull
 import ru.blays.hub.core.network.repositories.networkRepository.NetworkRepository
 
-class AddCatalogComponent(
-    componentContext: ComponentContext,
+class AddCatalogComponent private constructor(
+    componentContext: AppComponentContext,
+    private val networkRepository: NetworkRepository,
+    private val context: Context,
+    private val checkCatalogExists: suspend (url: String) -> Boolean,
     private val onOutput: (Output) -> Unit,
-    private val checkCatalogExists: suspend (url: String) -> Boolean
-) : ComponentContext by componentContext, KoinComponent {
-    private val networkRepository: NetworkRepository by inject()
-    private val context: Context by inject()
-
+) : AppComponentContext by componentContext {
     private val stackNavigation = StackNavigation<Configuration>()
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     val steps = childStack(
         source = stackNavigation,
@@ -44,7 +38,7 @@ class AddCatalogComponent(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext
+        childContext: AppComponentContext
     ): Step {
         return when (configuration) {
             is Configuration.Error -> Step.Error(
@@ -54,21 +48,18 @@ class AddCatalogComponent(
                     errorMessage = configuration.errorMessage
                 )
             )
-
             is Configuration.Info -> Step.Info(
                 InfoComponent(
                     componentContext = childContext,
                     catalog = configuration.catalog
                 )
             )
-
             is Configuration.Input -> Step.Input(
                 InputComponent(
                     componentContext = childContext,
                     initialValue = configuration.initialValue
                 )
             )
-
             Configuration.Loading -> Step.Loading
             is Configuration.Exists -> Step.Exists(
                 CatalogExistsComponent(
@@ -96,7 +87,7 @@ class AddCatalogComponent(
     }
 
     private fun loadCatalogInfo(url: String) {
-        coroutineScope.launch {
+        componentScope.launch {
             if (checkCatalogExists(url)) {
                 stackNavigation.bringToFront(Configuration.Exists(url))
                 return@launch
@@ -192,9 +183,9 @@ class AddCatalogComponent(
     }
 
     inner class InputComponent(
-        componentContext: ComponentContext,
+        componentContext: AppComponentContext,
         initialValue: String
-    ) : ComponentContext by componentContext {
+    ) : AppComponentContext by componentContext {
         private val _state = MutableStateFlow(initialValue)
 
         val state: StateFlow<String> = _state.asStateFlow()
@@ -213,9 +204,9 @@ class AddCatalogComponent(
     }
 
     inner class InfoComponent(
-        componentContext: ComponentContext,
+        componentContext: AppComponentContext,
         val catalog: CatalogModel
-    ) : ComponentContext by componentContext {
+    ) : AppComponentContext by componentContext {
         fun backToEditUrl() {
             this@AddCatalogComponent.backToEditUrl(catalog.url)
         }
@@ -226,10 +217,10 @@ class AddCatalogComponent(
     }
 
     inner class ErrorComponent(
-        componentContext: ComponentContext,
+        componentContext: AppComponentContext,
         private val url: String,
         val errorMessage: String
-    ) : ComponentContext by componentContext {
+    ) : AppComponentContext by componentContext {
         fun backToEditUrl() {
             this@AddCatalogComponent.backToEditUrl(url)
         }
@@ -240,9 +231,9 @@ class AddCatalogComponent(
     }
 
     inner class CatalogExistsComponent(
-        componentContext: ComponentContext,
+        componentContext: AppComponentContext,
         url: String
-    ) : ComponentContext by componentContext {
+    ) : AppComponentContext by componentContext {
         val message = context.getString(
             R.string.catalog_exists_formatted,
             url
@@ -250,6 +241,25 @@ class AddCatalogComponent(
 
         fun close() {
             this@AddCatalogComponent.close()
+        }
+    }
+
+    class Factory(
+        private val networkRepository: NetworkRepository,
+        private val context: Context,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            checkCatalogExists: suspend (url: String) -> Boolean,
+            onOutput: (Output) -> Unit,
+        ): AddCatalogComponent {
+            return AddCatalogComponent(
+                componentContext = componentContext,
+                networkRepository = networkRepository,
+                context = context,
+                checkCatalogExists = checkCatalogExists,
+                onOutput = onOutput
+            )
         }
     }
 }

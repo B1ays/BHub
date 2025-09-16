@@ -3,12 +3,12 @@ package ru.blays.hub.core.data
 import androidx.room.Room
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.bind
-import org.koin.dsl.lazyModule
+import org.koin.dsl.module
 import ru.blays.hub.core.data.repositories.CatalogsRepository
 import ru.blays.hub.core.data.repositories.CatalogsRepositoryImpl
 
 @OptIn(KoinExperimentalAPI::class)
-val dataModule = lazyModule {
+val dataModule = module {
     single<AppDatabase> {
         Room.databaseBuilder(
             context = get(),

@@ -1,26 +1,20 @@
 package ru.blays.hub.core.domain.components.appPageComponents
 
 import android.content.Context
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.child
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.essenty.lifecycle.doOnCreate
-import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.models.AppCardModel
 import ru.blays.hub.core.domain.data.models.AppType
@@ -36,19 +30,18 @@ import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 
 class AppVersionsListComponent(
-    componentContext: ComponentContext,
+    componentContext: AppComponentContext,
     private val app: AppCardModel,
-    private val versionType: VersionType
-): ComponentContext by componentContext, KoinComponent {
-    private val appsRepository: AppsRepository by inject()
-    private val settingsRepository: SettingsRepository by inject()
-    private val moduleManager: ModuleManager by inject()
-    private val context: Context by inject()
-
+    private val versionType: VersionType,
+    private val appsRepository: AppsRepository,
+    private val settingsRepository: SettingsRepository,
+    private val moduleManager: ModuleManager,
+    private val context: Context,
+    private val versionPageComponentFactory: VersionPageComponent.Factory,
+): AppComponentContext by componentContext {
     private val packageManager: PackageManager
         get() = getPackageManager(settingsRepository.pmType.realType)
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val slotNavigation = SlotNavigation<VersionPageSlotConfig>()
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State.Loading)
@@ -97,9 +90,9 @@ class AppVersionsListComponent(
 
     private fun slotChildFactory(
         config: VersionPageSlotConfig,
-        componentContext: ComponentContext
+        componentContext: AppComponentContext
     ): VersionPageComponent {
-        return VersionPageComponent(
+        return versionPageComponentFactory(
             componentContext = componentContext,
             config = config,
             onRefresh = ::refresh,
@@ -108,7 +101,7 @@ class AppVersionsListComponent(
     }
 
     private fun refresh() {
-        coroutineScope.launch {
+        componentScope.launch {
             _state.update { State.Loading }
             when(
                 val result = appsRepository.getAppVersions(
@@ -161,13 +154,13 @@ class AppVersionsListComponent(
     }
 
     private fun launchApp() {
-        coroutineScope.launch {
+        componentScope.launch {
             packageManager.launchApp(versionType.packageName)
         }
     }
 
     private fun delete() {
-        coroutineScope.launch {
+        componentScope.launch {
             packageManager.uninstallApp(versionType.packageName)
             if(versionType is VersionType.Root) {
                 moduleManager.delete(versionType.packageName)
@@ -194,9 +187,6 @@ class AppVersionsListComponent(
         lifecycle.doOnCreate {
             refresh()
         }
-        lifecycle.doOnDestroy {
-            coroutineScope.cancel()
-        }
     }
 
     sealed class Intent {
@@ -213,6 +203,31 @@ class AppVersionsListComponent(
         data object Loading: State()
         data class Error(val message: String): State()
         data class Loaded(val appType: AppType): State()
+    }
+
+    class Factory(
+        private val appsRepository: AppsRepository,
+        private val settingsRepository: SettingsRepository,
+        private val moduleManager: ModuleManager,
+        private val context: Context,
+        private val versionPageComponentFactory: VersionPageComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            versionType: VersionType,
+            app: AppCardModel,
+        ): AppVersionsListComponent {
+            return AppVersionsListComponent(
+                componentContext = componentContext,
+                app = app,
+                versionType = versionType,
+                appsRepository = appsRepository,
+                settingsRepository = settingsRepository,
+                moduleManager = moduleManager,
+                context = context,
+                versionPageComponentFactory = versionPageComponentFactory,
+            )
+        }
     }
 }
 

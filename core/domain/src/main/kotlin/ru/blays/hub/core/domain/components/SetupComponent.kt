@@ -8,23 +8,21 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.PowerManager
 import android.widget.Toast
 import androidx.core.content.getSystemService
-import com.arkivanov.decompose.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import ru.blays.hub.core.deviceUtils.DeviceInfo
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.preferences.SettingsRepository
 
-class SetupComponent(
-    componentContext: ComponentContext,
+class SetupComponent private constructor(
+    componentContext: AppComponentContext,
     private val context: Context,
+    private val settingsRepository: SettingsRepository,
     private val onOutput: (Output) -> Unit
-) : ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
+) : AppComponentContext by componentContext {
     private val powerManager = context.getSystemService<PowerManager>()!!
 
     private val _state = MutableStateFlow(State())
@@ -96,4 +94,21 @@ class SetupComponent(
         val rootMode: Boolean = false,
         val batteryNotOptimized: Boolean = false
     )
+
+    class Factory(
+        private val context: Context,
+        private val settingsRepository: SettingsRepository,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit
+        ): SetupComponent {
+            return SetupComponent(
+                componentContext = componentContext,
+                context = context,
+                settingsRepository = settingsRepository,
+                onOutput = onOutput
+            )
+        }
+    }
 }

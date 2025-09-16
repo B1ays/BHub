@@ -1,7 +1,6 @@
 package ru.blays.hub.core.domain.components.rootComponents
 
 import android.content.Context
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.backStack
 import com.arkivanov.decompose.router.stack.childStack
@@ -11,9 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.component.inject
+import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.components.InfoDialogComponent
 import ru.blays.hub.core.domain.components.SetupComponent
@@ -26,14 +23,16 @@ import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.core.preferences.proto.PMType
 import kotlin.system.exitProcess
 
-class DialogsComponent(
-    componentContext: ComponentContext,
+class DialogsComponent private constructor(
+    componentContext: AppComponentContext,
     configurations: List<Configuration>,
+    private val settingsRepository: SettingsRepository,
+    private val context: Context,
+    private val setupComponentFactory: SetupComponent.Factory,
+    private val infoComponentFactory: InfoDialogComponent.Factory,
+    private val shizukuDialogComponentFactory: ShizukuDialogComponent.Factory,
     private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext, KoinComponent {
-    private val settingsRepository: SettingsRepository by inject()
-    private val context: Context by inject()
-
+): AppComponentContext by componentContext {
     private val packageManager: PackageManager
         get() = getPackageManager(settingsRepository.pmType.realType)
 
@@ -56,21 +55,29 @@ class DialogsComponent(
 
     private fun childFactory(
         configuration: Configuration,
-        childContext: ComponentContext
+        childContext: AppComponentContext
     ): Child {
         return when(configuration) {
             is Configuration.Setup -> Child.Setup(
-                SetupComponent(childContext, get(), ::onSetupOutput)
+                setupComponentFactory(
+                    componentContext = childContext,
+                    onOutput = ::onSetupOutput
+                )
             )
             is Configuration.RootDialog -> Child.RootDialog(
-                InfoDialogComponent(childContext, configuration.dialogConfig, ::onRootDialogAction)
+                infoComponentFactory(
+                    componentContext = childContext,
+                    state = configuration.dialogConfig,
+                    onAction = ::onRootDialogAction
+
+                )
             )
             is Configuration.ShizukuDialog -> Child.ShizukuDialog(
-                ShizukuDialogComponent(
-                    childContext,
-                    configuration.dialogConfig,
-                    ::onShizukuDialogAction,
-                    ::onShizukuDialogOutput
+                shizukuDialogComponentFactory(
+                    componentContext = childContext,
+                    config = configuration.dialogConfig,
+                    onAction = ::onShizukuDialogAction,
+                    onOutput = ::onShizukuDialogOutput
                 )
             )
         }
@@ -170,5 +177,30 @@ class DialogsComponent(
     sealed class RootPermissionsDialogActions {
         data object DisableRootMode: RootPermissionsDialogActions()
         data object Close: RootPermissionsDialogActions()
+    }
+
+    class Factory(
+        private val settingsRepository: SettingsRepository,
+        private val context: Context,
+        private val setupComponentFactory: SetupComponent.Factory,
+        private val infoComponentFactory: InfoDialogComponent.Factory,
+        private val shizukuDialogComponentFactory: ShizukuDialogComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            configurations: List<Configuration>,
+            onOutput: (Output) -> Unit
+        ): DialogsComponent {
+            return DialogsComponent(
+                componentContext = componentContext,
+                configurations = configurations,
+                settingsRepository = settingsRepository,
+                context = context,
+                setupComponentFactory = setupComponentFactory,
+                infoComponentFactory = infoComponentFactory,
+                shizukuDialogComponentFactory = shizukuDialogComponentFactory,
+                onOutput = onOutput,
+            )
+        }
     }
 }

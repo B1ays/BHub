@@ -1,17 +1,19 @@
 package ru.blays.hub.core.domain.components.settingsComponents.developerMenu
 
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.backStack
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import kotlinx.serialization.Serializable
+import ru.blays.hub.core.domain.AppComponentContext
 
-class DeveloperMenuRootComponent(
-    componentContext: ComponentContext,
-    private val onOutput: (Output) -> Unit
-): ComponentContext by componentContext {
+class DeveloperMenuRootComponent private constructor(
+    componentContext: AppComponentContext,
+    private val logsComponentFactory: DeveloperMenuLogsComponent.Factory,
+    private val menuComponentFactory: DeveloperMenuComponent.Factory,
+    private val onOutput: (Output) -> Unit,
+): AppComponentContext by componentContext {
     private val navigation = StackNavigation<Configuration>()
 
     val childStack = childStack(
@@ -24,16 +26,19 @@ class DeveloperMenuRootComponent(
 
     fun onBackClicked() = navigation.pop()
 
-    private fun childFactory(configuration: Configuration, childContext: ComponentContext): Child {
+    private fun childFactory(
+        configuration: Configuration,
+        childContext: AppComponentContext
+    ): Child {
         return when(configuration) {
             Configuration.Logs -> Child.Logs(
-                DeveloperMenuLogsComponent(
+                logsComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onLogsOutput
                 )
             )
             Configuration.Menu -> Child.Menu(
-                DeveloperMenuComponent(
+                menuComponentFactory(
                     componentContext = childContext,
                     onOutput = ::onMenuOutput
                 )
@@ -87,5 +92,22 @@ class DeveloperMenuRootComponent(
         data class Logs(
             val component: DeveloperMenuLogsComponent
         ): Child()
+    }
+
+    class Factory(
+        private val logsComponentFactory: DeveloperMenuLogsComponent.Factory,
+        private val menuComponentFactory: DeveloperMenuComponent.Factory,
+    ) {
+        operator fun invoke(
+            componentContext: AppComponentContext,
+            onOutput: (Output) -> Unit,
+        ): DeveloperMenuRootComponent {
+            return DeveloperMenuRootComponent(
+                componentContext = componentContext,
+                logsComponentFactory = logsComponentFactory,
+                menuComponentFactory = menuComponentFactory,
+                onOutput = onOutput
+            )
+        }
     }
 }

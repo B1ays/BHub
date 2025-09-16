@@ -21,21 +21,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
-import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.downloader.repository.DownloadsRepository
-import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.domain.ACTION_MODULE_INSTALL
 import ru.blays.hub.core.domain.FLAG_REINSTALL
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.collectWhile
 import ru.blays.hub.core.domain.utils.launchSelfIntent
+import ru.blays.hub.core.downloader.DownloadRequest
+import ru.blays.hub.core.downloader.repository.DownloadsRepository
+import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.moduleManager.InstallRequest
 import ru.blays.hub.core.moduleManager.InstallStatus
 import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.packageManager.api.EXTRA_ACTION_SUCCESS
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.injectPackageManager
+import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
 import ru.blays.hub.utils.workerdsl.workData
 import java.io.File
@@ -67,7 +67,7 @@ class DownloadAndInstallModuleWorker(
 
         val flags: IntArray = inputData.getIntArray(FLAGS_KEY) ?: return Result.failure()
 
-        val packageManager by injectPackageManager(PackageManagerType.Root)
+        val packageManager = getPackageManager(PackageManagerType.Root)
 
         workerNotificationID = modApkDownloadRequest.hashCode()
         resultNotificationID = workerNotificationID + Random.nextInt()
