@@ -23,7 +23,6 @@ android {
 dependencies {
     // Koin
     implementation(libs.koin.core)
-    implementation(libs.koin.core.coroutines)
 
     // Api module
     implementation(projects.core.packageManager.api)

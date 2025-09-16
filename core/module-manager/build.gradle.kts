@@ -27,7 +27,6 @@ dependencies {
 
     // Koin
     implementation(libs.koin.core)
-    implementation(libs.koin.core.coroutines)
 
     // Libsu
     implementation(libs.libsu.core)

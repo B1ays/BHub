@@ -92,7 +92,6 @@ okhttp-coroutines = { group = "com.squareup.okhttp3", name = "okhttp-coroutines"
 
 # Koin
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
-koin-core-coroutines = { group = "io.insert-koin", name = "koin-core-coroutines", version.ref = "koin" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 koin-work = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }

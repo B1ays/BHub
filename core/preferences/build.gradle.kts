@@ -45,7 +45,6 @@ dependencies {
 
     // Koin
     implementation(libs.koin.core)
-    implementation(libs.koin.core.coroutines)
 }
 
 protobuf {

@@ -27,7 +27,6 @@ android {
 dependencies {
     // Koin
     implementation(libs.koin.core)
-    implementation(libs.koin.core.coroutines)
 
     // Shizuku
     implementation(libs.shizuku.api)

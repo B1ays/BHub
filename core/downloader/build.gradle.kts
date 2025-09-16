@@ -34,7 +34,6 @@ dependencies {
 
     // Koin
     implementation(libs.koin.core)
-    implementation(libs.koin.core.coroutines)
     implementation(libs.koin.work)
 
     // project
