@@ -51,3 +51,4 @@ include(":core:logger")
 // Utils
 include(":utils:workerDsl")
 include(":utils:coilDsl")
+include(":common")
