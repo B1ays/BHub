@@ -48,7 +48,10 @@ include(":core:preferences")
 include(":core:device-utils")
 include(":core:logger")
 
+// Common
+include(":common:logger")
+
 // Utils
 include(":utils:workerDsl")
 include(":utils:coilDsl")
-include(":common")
+
