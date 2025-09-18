@@ -4,7 +4,6 @@ import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
-import org.koin.dsl.lazyModule
 import org.koin.dsl.module
 import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.downloader.repository.DownloadsRepositoryImpl

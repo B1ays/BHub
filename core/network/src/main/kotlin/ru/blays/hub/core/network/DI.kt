@@ -3,7 +3,6 @@ package ru.blays.hub.core.network
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
-import org.koin.dsl.lazyModule
 import org.koin.dsl.module
 import ru.blays.hub.core.network.repositories.appUpdatesRepository.AppUpdatesRepository
 import ru.blays.hub.core.network.repositories.appUpdatesRepository.AppUpdatesRepositoryImpl
