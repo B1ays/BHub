@@ -50,6 +50,7 @@ include(":core:logger")
 
 // Common
 include(":common:logger")
+include(":common:utils")
 
 // Utils
 include(":utils:workerDsl")
