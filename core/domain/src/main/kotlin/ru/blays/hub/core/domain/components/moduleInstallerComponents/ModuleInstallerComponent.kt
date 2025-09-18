@@ -25,7 +25,7 @@ import ru.blays.hub.core.packageManager.api.utils.getPackageInfo
 import ru.blays.hub.core.preferences.SettingsRepository
 import java.io.File
 
-class ModuleInstallerComponent(
+class ModuleInstallerComponent private constructor(
     componentContext: AppComponentContext,
     private val moduleManager: ModuleManager,
     private val settingsRepository: SettingsRepository,

@@ -18,7 +18,7 @@ import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.okHttpDsl.fullUrlString
 import ru.blays.hub.core.network.repositories.networkRepository.NetworkRepository
 
-class AppDescriptionComponent(
+class AppDescriptionComponent private constructor(
     componentContext: AppComponentContext,
     private val app: AppCardModel,
     private val networkRepository: NetworkRepository,

@@ -29,7 +29,7 @@ import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.preferences.SettingsRepository
 
-class AppVersionsListComponent(
+class AppVersionsListComponent private constructor(
     componentContext: AppComponentContext,
     private val app: AppCardModel,
     private val versionType: VersionType,
