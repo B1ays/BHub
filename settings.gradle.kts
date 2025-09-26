@@ -44,13 +44,18 @@ include(":core:package-manager:root")
 include(":core:package-manager:shizuku")
 include(":core:module-manager")
 include(":core:downloader")
-include(":core:preferences")
+//include(":core:preferences")
 include(":core:device-utils")
 include(":core:logger")
 
 // Common
 include(":common:logger")
 include(":common:utils")
+include(":common:preferences:api")
+include(":common:preferences:impl")
+include(":common:preferences:default")
+include(":common:preferences:extensions")
+include(":common:preferences:serialization")
 
 // Utils
 include(":utils:workerDsl")
