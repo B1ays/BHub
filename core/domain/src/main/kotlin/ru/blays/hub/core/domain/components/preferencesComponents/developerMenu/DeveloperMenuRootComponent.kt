@@ -4,7 +4,7 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.backStack
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import kotlinx.serialization.Serializable
 import ru.blays.hub.core.domain.AppComponentContext
 
@@ -48,7 +48,7 @@ class DeveloperMenuRootComponent private constructor(
 
     private fun onMenuOutput(output: DeveloperMenuComponent.Output) {
         when(output) {
-            DeveloperMenuComponent.Output.Logs -> navigation.push(Configuration.Logs)
+            DeveloperMenuComponent.Output.Logs -> navigation.pushNew(Configuration.Logs)
             DeveloperMenuComponent.Output.NavigateBack -> {
                 onOutput.invoke(Output.NavigateBack)
             }

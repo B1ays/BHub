@@ -149,8 +149,8 @@ class VersionPageComponent private constructor(
                 is NetworkResult.Success -> {
                     originalApkUrl = result.data.originalApkUrl
                     rootVersion = result.data.originalApkUrl != null
-                    _state.update {
-                        it.copy(
+                    _state.update { oldState ->
+                        oldState.copy(
                             apkList = result.data.files.map { it.toUIModel() },
                             apkListLoading = false
                         )

@@ -3,7 +3,7 @@ package ru.blays.hub.core.domain.components.appsComponent
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import kotlinx.serialization.Serializable
 import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.components.appPageComponents.AppComponent
@@ -59,7 +59,7 @@ class AppsRootComponent private constructor(
     private fun onAppsOutput(output: AppsComponent.Output) {
         when(output) {
             is AppsComponent.Output.OpenApp -> {
-                navigation.push(Configuration.App(output.app))
+                navigation.pushNew(Configuration.App(output.app))
             }
         }
     }

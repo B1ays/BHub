@@ -281,10 +281,6 @@ class DownloadsListComponent private constructor(
         data class InstallApk(val file: ApkFile) : Intent()
     }
 
-    companion object {
-
-    }
-
     class Factory(
         private val preferencesHolder: PreferencesHolder,
         private val downloadsRepository: DownloadsRepository,

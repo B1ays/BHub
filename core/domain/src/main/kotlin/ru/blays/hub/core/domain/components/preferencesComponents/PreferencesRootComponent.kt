@@ -3,7 +3,7 @@ package ru.blays.hub.core.domain.components.preferencesComponents
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import kotlinx.serialization.Serializable
 import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.components.preferencesComponents.catalogs.CatalogsPreferencesComponent
@@ -76,19 +76,19 @@ class PreferencesRootComponent private constructor(
 
     private fun onSettingsOutput(output: PreferencesComponent.Output) {
         when(output) {
-            PreferencesComponent.Output.DeveloperMenu -> navigation.push(
+            PreferencesComponent.Output.DeveloperMenu -> navigation.pushNew(
                 Configuration.DeveloperMenu
             )
-            PreferencesComponent.Output.CatalogsSetting -> navigation.push(
+            PreferencesComponent.Output.CatalogsSetting -> navigation.pushNew(
                 Configuration.CatalogsSetting
             )
-            PreferencesComponent.Output.MainSettings -> navigation.push(
+            PreferencesComponent.Output.MainSettings -> navigation.pushNew(
                 Configuration.MainSettings
             )
-            PreferencesComponent.Output.ThemeSettings -> navigation.push(
+            PreferencesComponent.Output.ThemeSettings -> navigation.pushNew(
                 Configuration.ThemeSettings
             )
-            PreferencesComponent.Output.SelfUpdateSettings -> navigation.push(
+            PreferencesComponent.Output.SelfUpdateSettings -> navigation.pushNew(
                 Configuration.SelfUpdateSettings
             )
         }
