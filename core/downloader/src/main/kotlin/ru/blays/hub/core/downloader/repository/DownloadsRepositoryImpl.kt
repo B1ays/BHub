@@ -9,15 +9,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import ru.blays.hub.core.downloader.DownloadMode
 import ru.blays.hub.core.downloader.DownloadRequest
 import ru.blays.hub.core.downloader.DownloadTask
 import ru.blays.hub.core.downloader.DownloadWorker
-import ru.blays.hub.utils.workerdsl.constraints
-import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
-import ru.blays.hub.utils.workerdsl.workData
+import ru.blays.utils.androidx.worker.constraints
+import ru.blays.utils.androidx.worker.oneTimeWorkRequest
+import ru.blays.utils.androidx.worker.workData
 
 internal class DownloadsRepositoryImpl(
     private val workManager: WorkManager

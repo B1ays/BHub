@@ -19,8 +19,8 @@ import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.VersionName.Companion.toVersionName
 import ru.blays.hub.core.domain.utils.launchSelfIntent
 import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
-import ru.blays.hub.utils.workerdsl.constraints
-import ru.blays.hub.utils.workerdsl.periodicWorkRequest
+import ru.blays.utils.androidx.worker.constraints
+import ru.blays.utils.androidx.worker.periodicWorkRequest
 import ru.blays.preferences.accessor.getValue
 import ru.blays.preferences.api.PreferencesHolder
 import ru.blays.utils.android.getSystemServiceOrThrow

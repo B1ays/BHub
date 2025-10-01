@@ -23,6 +23,7 @@ android {
 dependencies {
     // AndroidX
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.work.runtime)
 
     // KotlinX
     implementation(libs.kotlinx.collections.immutable)
@@ -30,4 +31,7 @@ dependencies {
 
     // Koin
     implementation(libs.koin.core)
+
+    // Coil
+    implementation(libs.coil)
 }

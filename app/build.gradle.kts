@@ -95,8 +95,7 @@ dependencies {
     implementation(projects.common.preferences.api)
     implementation(projects.common.preferences.extensions)
     implementation(projects.common.preferences.default)
-    implementation(projects.utils.workerDsl)
-    implementation(projects.utils.coilDsl)
+    implementation(projects.common.utils)
 }
 
 private fun properties(file: File): Properties {

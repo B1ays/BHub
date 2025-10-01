@@ -19,12 +19,11 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 import ru.blays.hub.core.domain.CheckAppsUpdatesAccessor
 import ru.blays.hub.core.domain.CheckUpdatesIntervalAccessor
 import ru.blays.hub.core.domain.workers.CheckAppsUpdatesWorker
-import ru.blays.hub.utils.coilDsl.crossfade
-import ru.blays.hub.utils.coilDsl.diskCache
-import ru.blays.hub.utils.coilDsl.imageLoader
-import ru.blays.hub.utils.coilDsl.memoryCache
 import ru.blays.preferences.accessor.getValue
 import ru.blays.preferences.api.PreferencesHolder
+import ru.blays.utils.coil.diskCache
+import ru.blays.utils.coil.imageLoader
+import ru.blays.utils.coil.memoryCache
 import java.io.File
 
 class BHub : Application(), ImageLoaderFactory {
@@ -65,7 +64,7 @@ class BHub : Application(), ImageLoaderFactory {
                 maxSizePercent(0.25)
             }
             diskCache(File(cacheDir, "image_cache"))
-            crossfade = true
+            crossfade(true)
         }
     }
 

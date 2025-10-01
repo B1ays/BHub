@@ -1,4 +1,4 @@
-package ru.blays.hub.utils.workerdsl
+package ru.blays.utils.androidx.worker
 
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest

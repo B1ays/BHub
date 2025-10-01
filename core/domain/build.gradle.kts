@@ -74,7 +74,4 @@ dependencies {
     implementation(projects.common.preferences.api)
     implementation(projects.common.preferences.default)
     implementation(projects.common.preferences.extensions)
-
-    // Extensions
-    implementation(projects.utils.workerDsl)
 }

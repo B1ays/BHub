@@ -36,8 +36,8 @@ import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.packageManager.api.EXTRA_ACTION_SUCCESS
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
-import ru.blays.hub.utils.workerdsl.workData
+import ru.blays.utils.androidx.worker.oneTimeWorkRequest
+import ru.blays.utils.androidx.worker.workData
 import java.io.File
 import kotlin.random.Random
 

@@ -37,5 +37,5 @@ dependencies {
     implementation(libs.koin.work)
 
     // project
-    implementation(projects.utils.workerDsl)
+    implementation(projects.common.utils)
 }

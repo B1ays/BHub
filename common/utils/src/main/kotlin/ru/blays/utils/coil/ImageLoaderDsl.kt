@@ -1,4 +1,4 @@
-package ru.blays.hub.utils.coilDsl
+package ru.blays.utils.coil
 
 import android.content.Context
 import coil.ImageLoader

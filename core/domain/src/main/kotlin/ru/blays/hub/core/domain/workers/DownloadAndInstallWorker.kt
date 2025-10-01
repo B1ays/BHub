@@ -24,8 +24,8 @@ import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerResult
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
-import ru.blays.hub.utils.workerdsl.workData
+import ru.blays.utils.androidx.worker.oneTimeWorkRequest
+import ru.blays.utils.androidx.worker.workData
 import java.io.File
 import kotlin.random.Random
 
