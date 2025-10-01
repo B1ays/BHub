@@ -27,7 +27,7 @@ import ru.blays.hub.core.domain.components.InfoDialogConfig
 import ru.blays.hub.core.domain.components.SelfUpdateComponent
 import ru.blays.hub.core.domain.components.appsComponent.AppsRootComponent
 import ru.blays.hub.core.domain.components.downloadComponents.DownloadsListComponent
-import ru.blays.hub.core.domain.components.settingsComponents.SettingsRootComponent
+import ru.blays.hub.core.domain.components.preferencesComponents.PreferencesRootComponent
 import ru.blays.hub.core.domain.receivers.packageManagerReceiver
 import ru.blays.hub.core.packageManager.api.ACTION_APP_INSTALL
 import ru.blays.hub.core.packageManager.api.ACTION_APP_UNINSTALL
@@ -40,7 +40,7 @@ class TabsComponent private constructor(
     private val infoComponentFactory: InfoDialogComponent.Factory,
     private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
     private val appsComponentFactory: AppsRootComponent.Factory,
-    private val settingsComponentFactory: SettingsRootComponent.Factory,
+    private val settingsComponentFactory: PreferencesRootComponent.Factory,
     private val aboutComponentFactory: AboutComponent.Factory,
     private val downloadsComponentFactory: DownloadsListComponent.Factory,
 ) : AppComponentContext by componentContext {
@@ -232,7 +232,7 @@ class TabsComponent private constructor(
 
     sealed class Child {
         data class Apps(val component: AppsRootComponent) : Child()
-        data class Settings(val component: SettingsRootComponent) : Child()
+        data class Settings(val component: PreferencesRootComponent) : Child()
         data class About(val component: AboutComponent) : Child()
         data class Downloads(val component: DownloadsListComponent) : Child()
     }
@@ -251,7 +251,7 @@ class TabsComponent private constructor(
         private val infoComponentFactory: InfoDialogComponent.Factory,
         private val selfUpdateComponentFactory: SelfUpdateComponent.Factory,
         private val appsComponentFactory: AppsRootComponent.Factory,
-        private val settingsComponentFactory: SettingsRootComponent.Factory,
+        private val settingsComponentFactory: PreferencesRootComponent.Factory,
         private val aboutComponentFactory: AboutComponent.Factory,
         private val downloadsComponentFactory: DownloadsListComponent.Factory,
     ) {

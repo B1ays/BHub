@@ -2,22 +2,28 @@ package ru.blays.hub.core.domain.components
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.arkivanov.essenty.lifecycle.doOnCreate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.CheckSelfUpdatesAccessor
+import ru.blays.hub.core.domain.DownloadModeAccessor
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
+import ru.blays.hub.core.domain.SelfUpdatesChannelAccessor
+import ru.blays.hub.core.domain.UPDATES_SOURCE_URL_BETA
+import ru.blays.hub.core.domain.UPDATES_SOURCE_URL_NIGHTLY
+import ru.blays.hub.core.domain.UPDATES_SOURCE_URL_STABLE
 import ru.blays.hub.core.domain.data.LocalizedMessage
-import ru.blays.hub.core.domain.data.getUpdateChannelUrl
+import ru.blays.hub.core.domain.data.UpdateChannelType
 import ru.blays.hub.core.domain.data.models.AppUpdateInfoModel
-import ru.blays.hub.core.domain.data.realType
-import ru.blays.hub.core.domain.data.toDownloaderType
 import ru.blays.hub.core.domain.utils.currentLanguage
 import ru.blays.hub.core.domain.utils.downloadsFolder
 import ru.blays.hub.core.domain.workers.DownloadAndInstallWorker
-import ru.blays.hub.core.downloader.DownloadMode
 import ru.blays.hub.core.downloader.DownloadRequest
 import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.logger.Logger
@@ -26,28 +32,31 @@ import ru.blays.hub.core.network.models.UpdateInfoModel
 import ru.blays.hub.core.network.repositories.appUpdatesRepository.AppUpdatesRepository
 import ru.blays.hub.core.network.repositories.networkRepository.NetworkRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
-import ru.blays.hub.core.packageManager.api.getPackageManager
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import java.io.File
 
 class SelfUpdateComponent private constructor(
     componentContext: AppComponentContext,
     checkOnCreate: Boolean,
-    private val settingsRepository: SettingsRepository,
+    preferencesHolder: PreferencesHolder,
     private val updatesRepository: AppUpdatesRepository,
     private val networkRepository: NetworkRepository,
     private val downloadsRepository: DownloadsRepository,
     private val workManager: WorkManager,
     private val context: Context,
+    private val packageManagerResolver: PackageManagerResolver,
 ): AppComponentContext by componentContext {
+    private val packageManagerValue by preferencesHolder.getValue(PackageManagerAccessor)
+    private val updatesChannelValue by preferencesHolder.getValue(SelfUpdatesChannelAccessor)
+    private val downloadModeValue by preferencesHolder.getValue(DownloadModeAccessor)
+    private val checkUpdatesValue by preferencesHolder.getValue(CheckSelfUpdatesAccessor)
+
     private val packageManager: PackageManager
-        get() = getPackageManager(settingsRepository.pmType.realType)
+        get() = packageManagerResolver.getPackageManager(packageManagerValue)
+
     private val updateChannelUrl: String
-        get() = getUpdateChannelUrl(settingsRepository.updateChannel)
-    private val downloadMode: DownloadMode
-        get() = settingsRepository.downloadModeSetting.let { setting ->
-            setting.mode.toDownloaderType(setting.triesNumber)
-        }
+        get() = getUpdateChannelUrl(updatesChannelValue)
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State.Idle)
 
@@ -127,11 +136,11 @@ class SelfUpdateComponent private constructor(
             fileName = fileName,
             file = File(context.downloadsFolder, "$fileName.apk"),
         ) {
-            downloadMode(downloadMode)
+            downloadMode(downloadModeValue)
         }
         val installRequest = DownloadAndInstallWorker.createRequest(
             downloadRequest = downloadRequest,
-            packageManagerType = settingsRepository.pmType.realType,
+            packageManagerType = packageManagerValue,
             packageName = context.packageName
         )
         workManager.enqueue(installRequest)
@@ -154,9 +163,17 @@ class SelfUpdateComponent private constructor(
         apkUrl = apkUrl
     )
 
+    private fun getUpdateChannelUrl(channel: UpdateChannelType): String = when(channel) {
+        UpdateChannelType.STABLE -> UPDATES_SOURCE_URL_STABLE
+        UpdateChannelType.BETA -> UPDATES_SOURCE_URL_BETA
+        UpdateChannelType.NIGHTLY -> UPDATES_SOURCE_URL_NIGHTLY
+    }
+
     init {
-        if(settingsRepository.checkUpdates && checkOnCreate) {
-            refresh()
+        lifecycle.doOnCreate {
+            if(checkUpdatesValue && checkOnCreate) {
+                refresh()
+            }
         }
     }
 
@@ -179,12 +196,13 @@ class SelfUpdateComponent private constructor(
     }
 
     class Factory(
-        private val settingsRepository: SettingsRepository,
+        private val preferencesHolder: PreferencesHolder,
         private val updatesRepository: AppUpdatesRepository,
         private val networkRepository: NetworkRepository,
         private val downloadsRepository: DownloadsRepository,
         private val workManager: WorkManager,
         private val context: Context,
+        private val packageManagerResolver: PackageManagerResolver,
     ) {
         operator fun invoke(
             componentContext: AppComponentContext,
@@ -193,11 +211,12 @@ class SelfUpdateComponent private constructor(
             return SelfUpdateComponent(
                 componentContext = componentContext,
                 checkOnCreate = checkOnCreate,
-                settingsRepository = settingsRepository,
+                preferencesHolder = preferencesHolder,
                 updatesRepository = updatesRepository,
                 networkRepository = networkRepository,
                 downloadsRepository = downloadsRepository,
                 workManager = workManager,
+                packageManagerResolver = packageManagerResolver,
                 context = context
             )
         }

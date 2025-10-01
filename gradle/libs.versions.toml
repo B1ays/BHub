@@ -3,23 +3,23 @@ projectVersionCode = "2"
 projectVersionName = "1.1"
 
 agp = "8.13.0"
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 kotlinx-serizalization = "1.9.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-collections-immutable = "0.4.0"
 coreKtx = "1.17.0"
-workManager = "2.10.4"
+workManager = "2.10.5"
 datastore = "1.1.7"
-room = "2.8.0"
-lifecycleRuntimeKtx = "2.9.3"
+room = "2.8.1"
+lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
-composeBom = "2025.09.00"
+composeBom = "2025.09.01"
 appcompat = "1.7.1"
 constraintLayout = "2.2.1"
 constraintLayoutCompose = "1.1.1"
 okhttp = "5.1.0"
 koin = "4.1.1"
-ksp = "2.2.10-2.0.2"
+ksp = "2.2.20-2.0.2"
 annotationJvm = "1.9.1"
 coil = "2.7.0"
 composeMarkdown = "0.5.0"
@@ -28,7 +28,7 @@ detekt = "1.23.8"
 vkompose = "0.7.1"
 materialKolor = "3.0.1"
 protobufPlugin = "0.9.5"
-protobuf = "4.32.0"
+protobuf = "4.32.1"
 shizuku = "13.1.5"
 refineTools = "4.4.0"
 hiddenApi = "4.4.0"
@@ -39,11 +39,14 @@ moduleGraphAssert = "2.9.0"
 material = "1.13.0"
 cacheFix = "3.0.1"
 browser = "1.9.0"
+kotzilla = "1.2.2"
+startup = "1.2.0"
 
 # Decompose
 decompose = "3.3.0"
 essenty = "2.5.0"
-kotzilla = "1.2.1"
+
+# Test
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -61,6 +64,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-annotationProcessor = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+androidx-startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup" }
 
 # Google
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

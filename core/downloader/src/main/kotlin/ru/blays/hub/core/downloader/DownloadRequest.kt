@@ -1,9 +1,11 @@
 package ru.blays.hub.core.downloader
 
 import androidx.annotation.Keep
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.io.File
 
+@ConsistentCopyVisibility
 @Keep
 @Serializable
 data class DownloadRequest internal constructor(
@@ -60,7 +62,7 @@ sealed class DownloadMode {
     @Serializable
     data object SingleTry: DownloadMode()
     @Serializable
-    data class MultipleTry(val triesCount: Int): DownloadMode()
+    data class MultipleTry(@SerialName("tries_count") val triesCount: Int): DownloadMode()
     @Serializable
     data object InfinityTry: DownloadMode()
 }

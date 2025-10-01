@@ -20,13 +20,15 @@ import ru.blays.hub.core.data.repositories.CatalogsRepository
 import ru.blays.hub.core.data.room.entities.CatalogEntity
 import ru.blays.hub.core.domain.APPS_HREF
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
+import ru.blays.hub.core.domain.RootModeAccessor
 import ru.blays.hub.core.domain.data.LocalizationsMap
 import ru.blays.hub.core.domain.data.models.AppCardModel
 import ru.blays.hub.core.domain.data.models.VersionType
 import ru.blays.hub.core.domain.data.models.VersionType.NonRoot
 import ru.blays.hub.core.domain.data.models.VersionType.Root
-import ru.blays.hub.core.domain.data.realType
 import ru.blays.hub.core.domain.utils.VersionName.Companion.toVersionName
 import ru.blays.hub.core.domain.utils.currentLanguage
 import ru.blays.hub.core.moduleManager.ModuleManager
@@ -35,21 +37,25 @@ import ru.blays.hub.core.network.models.AppModel
 import ru.blays.hub.core.network.okHttpDsl.fullUrlString
 import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
-import ru.blays.hub.core.packageManager.api.getPackageManager
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 
 @Stable
 class AppsComponent private constructor(
     componentContext: AppComponentContext,
-    private val settingsRepository: SettingsRepository,
+    preferencesHolder: PreferencesHolder,
     private val catalogsRepository: CatalogsRepository,
     private val appsRepository: AppsRepository,
     private val moduleManager: ModuleManager,
     private val context: Context,
+    private val packageManagerResolver: PackageManagerResolver,
     private val onOutput: (Output) -> Unit
 ) : AppComponentContext by componentContext {
+    private val packageManagerValue = preferencesHolder.getValue(PackageManagerAccessor)
+    private val rootModeValue = preferencesHolder.getValue(RootModeAccessor)
+
     private val packageManager: PackageManager
-        get() = getPackageManager(settingsRepository.pmType.realType)
+        get() = packageManagerResolver.getPackageManager(packageManagerValue.value)
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(State.Loading)
 
@@ -140,7 +146,7 @@ class AppsComponent private constructor(
                             )
                         )
                     }
-                    if(settingsRepository.rootMode) {
+                    if(rootModeValue.value) {
                         app.root?.let {
                             val installedVersionName = if(
                                 moduleManager.checkModuleExist(it.packageName)
@@ -230,11 +236,12 @@ class AppsComponent private constructor(
     }
 
     class Factory(
-        private val settingsRepository: SettingsRepository,
+        private val preferencesHolder: PreferencesHolder,
         private val catalogsRepository: CatalogsRepository,
         private val appsRepository: AppsRepository,
         private val moduleManager: ModuleManager,
         private val context: Context,
+        private val packageManagerResolver: PackageManagerResolver,
     ) {
         operator fun invoke(
             componentContext: AppComponentContext,
@@ -242,10 +249,11 @@ class AppsComponent private constructor(
         ): AppsComponent {
             return AppsComponent(
                 componentContext = componentContext,
-                settingsRepository = settingsRepository,
+                preferencesHolder = preferencesHolder,
                 catalogsRepository = catalogsRepository,
                 appsRepository = appsRepository,
                 moduleManager = moduleManager,
+                packageManagerResolver = packageManagerResolver,
                 context = context,
                 onOutput = onOutput
             )

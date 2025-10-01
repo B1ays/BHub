@@ -1,6 +1,8 @@
 package ru.blays.preferences
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
+import ru.blays.preferences.accessor.PreferenceAccessor
 import ru.blays.preferences.accessor.TwoWayConverter
 import ru.blays.preferences.accessor.getValue
 import ru.blays.preferences.accessor.map
@@ -21,6 +23,17 @@ inline fun <reified T: Any> PreferencesHolder.getSerializableValue(
     val value: PreferenceValue<String> = getValue(key, defaultJson)
     return value.map(JsonConverter(serializer))
 }
+
+/**
+ * Create [PreferenceValue] with serialization [T] type support
+ */
+inline fun <reified T: Any> PreferencesHolder.getSerializableValue(
+    accessor: PreferenceAccessor<T>,
+): PreferenceValue<T> = getSerializableValue(
+    key = accessor.key,
+    defaultValue = accessor.defaultValue,
+    serializer = DefaultJson.serializersModule.serializer()
+)
 
 /**
  * Create [PreferenceValue] with serialization [T] type support

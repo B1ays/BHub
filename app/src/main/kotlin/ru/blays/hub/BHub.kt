@@ -16,16 +16,19 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import ru.blays.hub.core.domain.CheckAppsUpdatesAccessor
+import ru.blays.hub.core.domain.CheckUpdatesIntervalAccessor
 import ru.blays.hub.core.domain.workers.CheckAppsUpdatesWorker
-import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.utils.coilDsl.crossfade
 import ru.blays.hub.utils.coilDsl.diskCache
 import ru.blays.hub.utils.coilDsl.imageLoader
 import ru.blays.hub.utils.coilDsl.memoryCache
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import java.io.File
 
 class BHub : Application(), ImageLoaderFactory {
-    private val settingsRepository: SettingsRepository by inject()
+    private val preferencesHolder: PreferencesHolder by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -69,10 +72,11 @@ class BHub : Application(), ImageLoaderFactory {
     @Suppress("DEPRECATION")
     private fun startUpdatesWork() {
         val workManager = WorkManager.getInstance(this)
-        if (settingsRepository.checkAppsUpdates) {
-            val workRequest = CheckAppsUpdatesWorker.createWorkRequest(
-                settingsRepository.checkAppsUpdatesInterval
-            )
+        val checkUpdates by preferencesHolder.getValue(CheckAppsUpdatesAccessor)
+        val checkUpdatesInterval by preferencesHolder.getValue(CheckUpdatesIntervalAccessor)
+        if (checkUpdates) {
+            val workRequest =
+                CheckAppsUpdatesWorker.createWorkRequest(checkUpdatesInterval)
             workManager.enqueueUniquePeriodicWork(
                 uniqueWorkName = CheckAppsUpdatesWorker.WORK_NAME,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.REPLACE,
@@ -85,7 +89,6 @@ class BHub : Application(), ImageLoaderFactory {
 
     /**
      * If there is a pending work because of previous crash we'd like it to not run.
-     *
      */
     @SuppressLint("RestrictedApi")
     private fun cancelPendingWorkManager() {

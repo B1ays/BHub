@@ -3,35 +3,28 @@ package ru.blays.hub.core.domain.components.appPageComponents
 import android.content.Context
 import android.widget.Toast
 import androidx.work.WorkManager
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.arkivanov.essenty.lifecycle.doOnCreate
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
 import ru.blays.hub.core.domain.AppComponentContext
-import ru.blays.hub.core.downloader.DownloadMode
-import ru.blays.hub.core.downloader.DownloadRequest
-import ru.blays.hub.core.logger.Logger
+import ru.blays.hub.core.domain.DownloadModeAccessor
 import ru.blays.hub.core.domain.FLAG_REINSTALL
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.VIBRATION_LENGTH
 import ru.blays.hub.core.domain.components.InfoDialogComponent
 import ru.blays.hub.core.domain.components.InfoDialogConfig
 import ru.blays.hub.core.domain.data.LocalizedMessage
 import ru.blays.hub.core.domain.data.models.ApkInfoCardModel
-import ru.blays.hub.core.domain.data.realType
-import ru.blays.hub.core.domain.data.toDownloaderType
 import ru.blays.hub.core.domain.utils.VersionName.Companion.toVersionName
 import ru.blays.hub.core.domain.utils.currentLanguage
 import ru.blays.hub.core.domain.utils.downloadsFolder
@@ -40,6 +33,8 @@ import ru.blays.hub.core.domain.utils.toIntArray
 import ru.blays.hub.core.domain.utils.vibrate
 import ru.blays.hub.core.domain.workers.DownloadAndInstallModuleWorker
 import ru.blays.hub.core.domain.workers.DownloadAndInstallWorker
+import ru.blays.hub.core.downloader.DownloadRequest
+import ru.blays.hub.core.logger.Logger
 import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.models.ApkListModel
 import ru.blays.hub.core.network.okHttpDsl.fullUrlString
@@ -47,32 +42,27 @@ import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
 import ru.blays.hub.core.network.repositories.networkRepository.NetworkRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.getPackageManager
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import java.io.File
 
 class VersionPageComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val config: VersionPageSlotConfig,
     private val appsRepository: AppsRepository,
     private val networkRepository: NetworkRepository,
-    private val settingsRepository: SettingsRepository,
+    private val packageManagerResolver: PackageManagerResolver,
     private val workManager: WorkManager,
     private val context: Context,
     private val onRefresh: () -> Unit,
     private val onOutput: (Output) -> Unit
 ): AppComponentContext by componentContext {
+    private val packageManagerValue = preferencesHolder.getValue(PackageManagerAccessor)
+    private val downloadModeValue = preferencesHolder.getValue(DownloadModeAccessor)
+
     val packageManager: PackageManager
-        get() = getPackageManager(pmType)
-
-    private val pmType: PackageManagerType
-        get() = settingsRepository.pmType.realType
-    private val downloadMode: DownloadMode
-        get() = settingsRepository.downloadModeSetting.let { setting ->
-            setting.mode.toDownloaderType(setting.triesNumber)
-        }
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+        get() = packageManagerResolver.getPackageManager(packageManagerValue.value)
 
     private val slotNavigation = SlotNavigation<InfoDialogConfig>()
 
@@ -107,12 +97,12 @@ class VersionPageComponent private constructor(
                     ApkInstallAction.Continue -> {
                         slotNavigation.dismiss()
                         apkToInstall?.let {
-                            coroutineScope.launch {
+                            componentScope.launch {
                                 installApk(it, false)
                             }
                         }
                     }
-                    ApkInstallAction.Reinstall -> coroutineScope.launch {
+                    ApkInstallAction.Reinstall -> componentScope.launch {
                         apkToInstall?.let {
                             installApk(it, reinstall = true)
                         }
@@ -125,7 +115,7 @@ class VersionPageComponent private constructor(
     fun sendIntent(intent: Intent) {
         when(intent) {
             is Intent.LoadChangelog -> loadChangelog()
-            is Intent.InstallApk -> coroutineScope.launch {
+            is Intent.InstallApk -> componentScope.launch {
                 if (needWarnAboutDowngrade()) {
                     apkToInstall = intent.apkInfo
                     slotNavigation.activate(
@@ -144,7 +134,7 @@ class VersionPageComponent private constructor(
     fun onOutput(output: Output) = onOutput.invoke(output)
 
     private fun loadFiles() {
-        coroutineScope.launch {
+        componentScope.launch {
             _state.update { it.copy(apkListLoading = true) }
             val result = appsRepository.getApkList(
                 config.sourceUrl,
@@ -176,7 +166,7 @@ class VersionPageComponent private constructor(
             !state.value.changelogLoading &&
             !changelogLoaded
         ) {
-            coroutineScope.launch {
+            componentScope.launch {
                 _state.update { it.copy(changelogLoading = true) }
                 val result = networkRepository.getString(
                     fullUrlString(config.sourceUrl, config.versionCard.changelogHref)
@@ -221,7 +211,7 @@ class VersionPageComponent private constructor(
                     "${apkInfo.name}.apk"
                 )
             ) {
-                downloadMode(downloadMode)
+                downloadMode(downloadModeValue.value)
             }
             val origFileName = "${config.appName}-${config.versionCard.version}-orig"
             val origApkDownloadRequest = DownloadRequest.builder(
@@ -232,7 +222,7 @@ class VersionPageComponent private constructor(
                     "$origFileName.apk"
                 )
             ) {
-                downloadMode(downloadMode)
+                downloadMode(downloadModeValue.value)
             }
             DownloadAndInstallModuleWorker.createRequest(
                 modApkDownloadRequest = modApkDownloadRequest,
@@ -249,11 +239,11 @@ class VersionPageComponent private constructor(
                     "${apkInfo.name}.apk"
                 )
             ) {
-                downloadMode(downloadMode)
+                downloadMode(downloadModeValue.value)
             }
             DownloadAndInstallWorker.createRequest(
                 downloadRequest = downloadRequest,
-                packageManagerType = pmType,
+                packageManagerType = packageManagerValue.value,
                 packageName = config.packageName,
                 flags = IntArray(flags.size, flags::get)
             )
@@ -276,7 +266,7 @@ class VersionPageComponent private constructor(
 
     private suspend fun needWarnAboutDowngrade(): Boolean {
         if(rootVersion) return false
-        if(pmType == PackageManagerType.Root) return false
+        if(packageManagerValue.value == PackageManagerType.Root) return false
 
         val oldVersion = packageManager.getVersionName(config.packageName).getValueOrNull()
         val newVersion = config.versionCard.version
@@ -291,7 +281,11 @@ class VersionPageComponent private constructor(
         url = url
     )
 
-    init { loadFiles() }
+    init {
+        lifecycle.doOnCreate {
+            loadFiles()
+        }
+    }
 
     sealed class Intent {
         data object LoadChangelog: Intent()
@@ -315,9 +309,10 @@ class VersionPageComponent private constructor(
     class Factory(
         private val appsRepository: AppsRepository,
         private val networkRepository: NetworkRepository,
-        private val settingsRepository: SettingsRepository,
         private val workManager: WorkManager,
         private val context: Context,
+        private val preferencesHolder: PreferencesHolder,
+        private val packageManagerResolver: PackageManagerResolver,
     ) {
         operator fun invoke(
             componentContext: AppComponentContext,
@@ -327,10 +322,11 @@ class VersionPageComponent private constructor(
         ): VersionPageComponent {
             return VersionPageComponent(
                 componentContext = componentContext,
+                preferencesHolder = preferencesHolder,
                 config = config,
                 appsRepository = appsRepository,
                 networkRepository = networkRepository,
-                settingsRepository = settingsRepository,
+                packageManagerResolver = packageManagerResolver,
                 workManager = workManager,
                 context = context,
                 onRefresh = onRefresh,

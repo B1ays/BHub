@@ -37,7 +37,8 @@ class PreferencesHolderImpl(
         return heldValues.getOrPut(key) {
             val (reader, writer) = preferences.createReaderAndWriter(
                 key = key,
-                defaultValue = defaultValue
+                defaultValue = defaultValue,
+                type = type,
             )
             PreferenceValueImpl(
                 scope = scope,
@@ -96,7 +97,8 @@ class PreferencesHolderImpl(
         } else {
             val (reader, writer) = preferences.createReaderAndWriter(
                 key = key,
-                defaultValue = defaultValue
+                defaultValue = defaultValue,
+                type = type,
             )
             ReadWriteValueImpl(reader, writer).run(block)
         }

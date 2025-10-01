@@ -63,10 +63,17 @@ dependencies {
     implementation(projects.core.packageManager.shizuku)
     implementation(projects.core.moduleManager)
     implementation(projects.core.downloader)
-    api(projects.core.preferences)
+    //api(projects.core.preferences)
     implementation(projects.core.deviceUtils)
     implementation(projects.core.logger)
     implementation(projects.core.data)
+
+    // Common
+    implementation(projects.common.utils)
+
+    implementation(projects.common.preferences.api)
+    implementation(projects.common.preferences.default)
+    implementation(projects.common.preferences.extensions)
 
     // Extensions
     implementation(projects.utils.workerDsl)

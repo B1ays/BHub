@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
 import android.os.PowerManager
 import androidx.compose.runtime.Stable
 import androidx.core.content.getSystemService
@@ -15,37 +14,44 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.essenty.lifecycle.doOnCreate
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import rikka.shizuku.Shizuku
 import ru.blays.hub.core.deviceUtils.ShizukuState
 import ru.blays.hub.core.deviceUtils.shizukuState
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.AppThemeAccessor
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PreferencesValidator
 import ru.blays.hub.core.domain.R
+import ru.blays.hub.core.domain.data.ThemePreferenceModel
 import ru.blays.hub.core.domain.utils.collectWhile
-import ru.blays.hub.core.domain.utils.validateSettings
-import ru.blays.hub.core.preferences.SettingsRepository
-import ru.blays.hub.core.preferences.proto.PMType
-import ru.blays.hub.core.preferences.proto.ThemeSettings
+import ru.blays.hub.core.packageManager.api.PackageManagerType
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
+import ru.blays.utils.kotlinx.coroutines.withMain
 
 
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 @Stable
 class RootComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val initialConfiguration: Configuration,
-    private val settingsRepository: SettingsRepository,
     private val context: Context,
+    private val preferencesValidator: PreferencesValidator,
     private val tabsComponentFactory: TabsComponent.Factory,
     private val dialogsComponentFactory: DialogsComponent.Factory,
 ) : AppComponentContext by componentContext {
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private val packageManagerValue = preferencesHolder.getValue(PackageManagerAccessor)
 
     private val stackNavigation = StackNavigation<Configuration>()
 
@@ -57,8 +63,8 @@ class RootComponent private constructor(
         childFactory = ::childFactory
     )
 
-    val themeStateFlow: StateFlow<ThemeSettings>
-        get() = settingsRepository.themeSettingsFlow
+    val themeStateFlow: StateFlow<ThemePreferenceModel> =
+        preferencesHolder.getValue(AppThemeAccessor)
 
     private fun childFactory(
         configuration: Configuration,
@@ -90,7 +96,7 @@ class RootComponent private constructor(
     ) {
         when (state) {
             is ShizukuState.NotRunning -> {
-                if (settingsRepository.pmType == PMType.SHIZUKU) {
+                if (packageManagerValue.value == PackageManagerType.Shizuku) {
                     val configuration = DialogsComponent.Configuration.ShizukuDialog(
                         ShizukuDialogComponent.Configuration.ShizukuNotRunning(
                             title = context.getString(R.string.shizuku_dialog_notRunning_title),
@@ -129,9 +135,10 @@ class RootComponent private constructor(
     }
 
     init {
-        val handler by lazy { Handler(context.mainLooper) }
+        val jobs = mutableListOf<Job>()
+
         lifecycle.doOnCreate {
-            settingsRepository.validateSettings(context)
+            preferencesValidator.validate()
 
             val sendNotificationsGranted = sendNotificationsGranted()
             val installRequestGranted = context.packageManager.canRequestPackageInstalls()
@@ -148,7 +155,7 @@ class RootComponent private constructor(
                 ) {
                     add(DialogsComponent.Configuration.Setup)
                 }
-                if (settingsRepository.pmType == PMType.SHIZUKU) {
+                if (packageManagerValue.value == PackageManagerType.Shizuku) {
                     if (shizukuStateValue == ShizukuState.NotInstalled) {
                         add(
                             DialogsComponent.Configuration.ShizukuDialog(
@@ -177,17 +184,17 @@ class RootComponent private constructor(
                     Configuration.RootDialog(dialogConfigurations)
                 )
             } else {
-                if (settingsRepository.pmType == PMType.SHIZUKU) {
+                if (packageManagerValue.value == PackageManagerType.Shizuku) {
                     if (shizukuStateValue is ShizukuState.Running) {
                         if (shizukuStateValue.permissionGranted) {
                             stackNavigation.replaceCurrent(initialConfiguration)
                         } else {
-                            coroutineScope.launch {
+                            componentScope.launch {
                                 shizukuStateFlow.collectWhile { shizukuState ->
                                     when (shizukuState) {
                                         is ShizukuState.Running -> {
                                             if (shizukuState.permissionGranted) {
-                                                handler.post {
+                                                withContext(Dispatchers.Main) {
                                                     stackNavigation.replaceCurrent(
                                                         initialConfiguration
                                                     )
@@ -212,22 +219,26 @@ class RootComponent private constructor(
 
             val onShizukuStateChange: suspend (ShizukuState) -> Unit = { state ->
                 shizukuStateValue = state
-                handler.post { onShizukuStateChange(state) }
+
+                withMain {
+                    onShizukuStateChange(state)
+                }
             }
 
-            coroutineScope.launch {
-                shizukuStateFlow.collect(onShizukuStateChange)
-            }
-            coroutineScope.launch {
-                settingsRepository.pmTypeFlow.collect { type ->
-                    if (type == PMType.SHIZUKU) {
+            jobs += shizukuStateFlow
+                .onEach(onShizukuStateChange)
+                .launchIn(componentScope)
+
+            jobs += packageManagerValue
+                .onEach { type ->
+                    if(type == PackageManagerType.Shizuku) {
                         onShizukuStateChange(shizukuStateValue)
                     }
                 }
-            }
+                .launchIn(componentScope)
         }
         lifecycle.doOnDestroy {
-            coroutineScope.cancel()
+            jobs.forEach(Job::cancel)
         }
     }
 
@@ -253,8 +264,9 @@ class RootComponent private constructor(
     }
 
     class Factory(
-        private val settingsRepository: SettingsRepository,
+        private val preferencesHolder: PreferencesHolder,
         private val context: Context,
+        private val preferencesValidator: PreferencesValidator,
         private val tabsComponentFactory: TabsComponent.Factory,
         private val dialogsComponentFactory: DialogsComponent.Factory,
     ) {
@@ -264,9 +276,10 @@ class RootComponent private constructor(
         ): RootComponent {
             return RootComponent(
                 componentContext = componentContext,
+                preferencesHolder = preferencesHolder,
                 initialConfiguration = initialConfiguration,
-                settingsRepository = settingsRepository,
                 context = context,
+                preferencesValidator = preferencesValidator,
                 tabsComponentFactory = tabsComponentFactory,
                 dialogsComponentFactory = dialogsComponentFactory,
             )

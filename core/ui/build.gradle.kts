@@ -84,4 +84,5 @@ dependencies {
 
     // Modules
     api(projects.core.domain)
+    api(projects.core.packageManager.api)
 }

@@ -30,10 +30,9 @@ internal suspend inline fun <T> Flow<T>.collectWhile(crossinline predicate: susp
     }
 }
 
-// The scope used here is the scope that is used for the mapping work
-fun <T, M> StateFlow<T>.map(
+inline fun <T, M> StateFlow<T>.map(
     coroutineScope : CoroutineScope,
-    mapper : (value : T) -> M
+    crossinline mapper : (value : T) -> M
 ): StateFlow<M> = map(mapper).stateIn(
     coroutineScope,
     SharingStarted.Eagerly,
@@ -41,8 +40,8 @@ fun <T, M> StateFlow<T>.map(
 )
 
 context(scope: CoroutineScope)
-fun <T, M> StateFlow<T>.map(
-    mapper : (value : T) -> M
+inline fun <T, M> StateFlow<T>.map(
+    crossinline mapper : (value : T) -> M
 ): StateFlow<M> = map(mapper).stateIn(
     scope,
     SharingStarted.Eagerly,

@@ -4,7 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import androidx.core.content.getSystemService
 import androidx.work.CoroutineWorker
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
@@ -13,33 +12,40 @@ import org.koin.core.component.KoinComponent
 import ru.blays.hub.core.data.repositories.CatalogsRepository
 import ru.blays.hub.core.deviceUtils.DeviceInfo
 import ru.blays.hub.core.domain.APPS_HREF
+import ru.blays.hub.core.domain.CheckAppsUpdatesAccessor
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.VersionName.Companion.toVersionName
 import ru.blays.hub.core.domain.utils.launchSelfIntent
 import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
-import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.getPackageManager
-import ru.blays.hub.core.preferences.SettingsRepository
 import ru.blays.hub.utils.workerdsl.constraints
 import ru.blays.hub.utils.workerdsl.periodicWorkRequest
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
+import ru.blays.utils.android.getSystemServiceOrThrow
 import java.time.Duration
 import kotlin.time.Duration.Companion.hours
 
 class CheckAppsUpdatesWorker(
     appContext: Context,
     params: WorkerParameters,
+    preferencesHolder: PreferencesHolder,
     private val appsRepository: AppsRepository,
     private val catalogsRepository: CatalogsRepository,
-    private val settingsRepository: SettingsRepository
+    private val packageManagerResolver: PackageManagerResolver,
 ) : CoroutineWorker(appContext, params), KoinComponent {
-    private val packageManager = getPackageManager(PackageManagerType.NonRoot)
-    private val notificationManager = appContext.getSystemService<NotificationManager>()!!
+    private val packageManagerValue by preferencesHolder.getValue(PackageManagerAccessor)
+    private val checkUpdatesValue by preferencesHolder.getValue(CheckAppsUpdatesAccessor)
+
+    private val packageManager = packageManagerResolver.getPackageManager(packageManagerValue)
+    private val notificationManager = appContext.getSystemServiceOrThrow<NotificationManager>()
 
     private val contentIntent = appContext.launchSelfIntent
     private val rootGranted = DeviceInfo.isRootGranted
 
     override suspend fun doWork(): Result {
-        if(!settingsRepository.checkAppsUpdates) return Result.failure()
+        if(!checkUpdatesValue) return Result.failure()
 
         val catalogs = catalogsRepository.getAllEnabledCatalogs()
 

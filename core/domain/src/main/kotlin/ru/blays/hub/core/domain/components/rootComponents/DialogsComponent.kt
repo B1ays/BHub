@@ -11,30 +11,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
+import ru.blays.hub.core.domain.RootModeAccessor
 import ru.blays.hub.core.domain.components.InfoDialogComponent
 import ru.blays.hub.core.domain.components.SetupComponent
-import ru.blays.hub.core.domain.data.realType
 import ru.blays.hub.core.domain.utils.openInBrowser
 import ru.blays.hub.core.packageManager.api.PackageManager
-import ru.blays.hub.core.packageManager.api.getPackageManager
+import ru.blays.hub.core.packageManager.api.PackageManagerType
 import ru.blays.hub.core.packageManager.shizuku.SHIZUKU_PACKAGE_NAME
-import ru.blays.hub.core.preferences.SettingsRepository
-import ru.blays.hub.core.preferences.proto.PMType
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import kotlin.system.exitProcess
 
 class DialogsComponent private constructor(
     componentContext: AppComponentContext,
     configurations: List<Configuration>,
-    private val settingsRepository: SettingsRepository,
+    preferencesHolder: PreferencesHolder,
     private val context: Context,
+    private val packageManagerResolver: PackageManagerResolver,
     private val setupComponentFactory: SetupComponent.Factory,
     private val infoComponentFactory: InfoDialogComponent.Factory,
     private val shizukuDialogComponentFactory: ShizukuDialogComponent.Factory,
     private val onOutput: (Output) -> Unit
 ): AppComponentContext by componentContext {
+    private var packageManagerValue by preferencesHolder.getValue(PackageManagerAccessor)
+    private var rootModeValue by preferencesHolder.getValue(RootModeAccessor)
+
     private val packageManager: PackageManager
-        get() = getPackageManager(settingsRepository.pmType.realType)
+        get() = packageManagerResolver.getPackageManager(packageManagerValue)
 
     private val coroutineScope by lazy { CoroutineScope(Dispatchers.Default) }
     private val navigation = StackNavigation<Configuration>()
@@ -117,9 +123,7 @@ class DialogsComponent private constructor(
     }
 
     private fun disableRootMode() {
-        settingsRepository.setValue {
-            rootMode = false
-        }
+        rootModeValue = false
     }
 
     private fun openShizukuSite() {
@@ -134,9 +138,7 @@ class DialogsComponent private constructor(
     }
 
     private fun disableShizuku() {
-        settingsRepository.setValue {
-            pmType = PMType.NON_ROOT
-        }
+        packageManagerValue = PackageManagerType.NonRoot
     }
 
     private fun closeIfLast() {
@@ -180,8 +182,9 @@ class DialogsComponent private constructor(
     }
 
     class Factory(
-        private val settingsRepository: SettingsRepository,
+        private val preferencesHolder: PreferencesHolder,
         private val context: Context,
+        private val packageManagerResolver: PackageManagerResolver,
         private val setupComponentFactory: SetupComponent.Factory,
         private val infoComponentFactory: InfoDialogComponent.Factory,
         private val shizukuDialogComponentFactory: ShizukuDialogComponent.Factory,
@@ -191,11 +194,12 @@ class DialogsComponent private constructor(
             configurations: List<Configuration>,
             onOutput: (Output) -> Unit
         ): DialogsComponent {
-            return DialogsComponent(
+            return DialogsComponent (
                 componentContext = componentContext,
                 configurations = configurations,
-                settingsRepository = settingsRepository,
+                preferencesHolder = preferencesHolder,
                 context = context,
+                packageManagerResolver = packageManagerResolver,
                 setupComponentFactory = setupComponentFactory,
                 infoComponentFactory = infoComponentFactory,
                 shizukuDialogComponentFactory = shizukuDialogComponentFactory,

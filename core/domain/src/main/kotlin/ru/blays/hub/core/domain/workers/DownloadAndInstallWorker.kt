@@ -16,6 +16,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import kotlinx.serialization.json.Json
 import ru.blays.hub.core.domain.FLAG_REINSTALL
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.collectWhile
 import ru.blays.hub.core.downloader.DownloadRequest
@@ -23,7 +24,6 @@ import ru.blays.hub.core.downloader.repository.DownloadsRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerResult
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
 import ru.blays.hub.utils.workerdsl.workData
 import java.io.File
@@ -32,7 +32,8 @@ import kotlin.random.Random
 internal class DownloadAndInstallWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val downloadRepository: DownloadsRepository
+    private val packageManagerResolver: PackageManagerResolver,
+    private val downloadRepository: DownloadsRepository,
 ) : CoroutineWorker(
     appContext,
     params
@@ -51,7 +52,7 @@ internal class DownloadAndInstallWorker(
         val flags = inputData.getIntArray(FLAGS_KEY) ?: return Result.failure()
         val packageName = inputData.getString(PACKAGE_NAME_KEY) ?: return Result.failure()
 
-        val packageManager: PackageManager = getPackageManager(pmType)
+        val packageManager: PackageManager = packageManagerResolver.getPackageManager(pmType)
 
         workerNotificationID = downloadRequest.hashCode()
         resultNotificationID = workerNotificationID + Random.nextInt()

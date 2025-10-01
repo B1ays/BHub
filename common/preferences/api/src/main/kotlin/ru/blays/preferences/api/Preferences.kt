@@ -11,7 +11,7 @@ interface Preferences {
      * @param key preference key
      * @param defaultValue default value
      */
-    fun <T> createReader(key: String, defaultValue: T): PreferenceReader<T>
+    fun <T> createReader(key: String, defaultValue: T, type: KType,): PreferenceReader<T>
 
     /**
      * Create preference reader
@@ -23,13 +23,13 @@ interface Preferences {
      * Create preference writer
      * @param key preference key
      */
-    fun <T> createWriter(key: String): PreferenceWriter<T>
+    fun <T> createWriter(key: String, type: KType): PreferenceWriter<T>
 
     /**
      * Create nullable preference writer
      * @param key preference key
      */
-    fun <T> createNullableWriter(key: String): PreferenceWriter<T?>
+    fun <T> createNullableWriter(key: String, type: KType): PreferenceWriter<T?>
 
     /**
      * Check if preference contains value

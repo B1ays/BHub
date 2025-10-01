@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.PowerManager
 import android.widget.Toast
-import androidx.core.content.getSystemService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,15 +14,20 @@ import kotlinx.coroutines.flow.update
 import ru.blays.hub.core.deviceUtils.DeviceInfo
 import ru.blays.hub.core.domain.AppComponentContext
 import ru.blays.hub.core.domain.R
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.hub.core.domain.RootModeAccessor
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
+import ru.blays.utils.android.getSystemServiceOrThrow
 
 class SetupComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val context: Context,
-    private val settingsRepository: SettingsRepository,
     private val onOutput: (Output) -> Unit
 ) : AppComponentContext by componentContext {
-    private val powerManager = context.getSystemService<PowerManager>()!!
+    private var rootModeValue by preferencesHolder.getValue(RootModeAccessor)
+
+    private val powerManager = context.getSystemServiceOrThrow<PowerManager>()
 
     private val _state = MutableStateFlow(State())
 
@@ -42,9 +46,7 @@ class SetupComponent private constructor(
                     _state.update {
                         it.copy(rootMode = true)
                     }
-                    settingsRepository.setValue {
-                        rootMode = true
-                    }
+                    rootModeValue = true
                 } else {
                     Toast.makeText(
                         context,
@@ -96,8 +98,8 @@ class SetupComponent private constructor(
     )
 
     class Factory(
+        private val preferencesHolder: PreferencesHolder,
         private val context: Context,
-        private val settingsRepository: SettingsRepository,
     ) {
         operator fun invoke(
             componentContext: AppComponentContext,
@@ -105,8 +107,8 @@ class SetupComponent private constructor(
         ): SetupComponent {
             return SetupComponent(
                 componentContext = componentContext,
+                preferencesHolder = preferencesHolder,
                 context = context,
-                settingsRepository = settingsRepository,
                 onOutput = onOutput
             )
         }

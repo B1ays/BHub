@@ -38,7 +38,7 @@ import ru.blays.hub.core.ui.elements.infoDialog.InfoDialogContent
 import ru.blays.hub.core.ui.screens.aboutContent.AboutContent
 import ru.blays.hub.core.ui.screens.appsContent.AppsRootContent
 import ru.blays.hub.core.ui.screens.downloadsContent.DownloadsContent
-import ru.blays.hub.core.ui.screens.settingsContent.SettingsRootContent
+import ru.blays.hub.core.ui.screens.preferencesContent.SettingsRootContent
 import ru.blays.hub.core.ui.utils.primaryColorAtAlpha
 import ru.blays.hub.core.ui.utils.shadowPlus
 import ru.blays.hub.core.ui.values.LocalStackAnimator

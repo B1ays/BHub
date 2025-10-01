@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.convention.androidLibrary)
+    alias(libs.plugins.kotlinx.serizalization)
 }
 
 android {
@@ -22,13 +23,16 @@ android {
     kotlin {
         compilerOptions {
             optIn.add(
-                "ru.cleverControl.preferences.InternalPreferencesApi",
+                "ru.blays.preferences.InternalPreferencesApi",
             )
         }
     }
 }
 
 dependencies {
+    // KotlinX
+    implementation(libs.kotlinx.serialization.json)
+
     // Api
     api(projects.common.preferences.api)
 }

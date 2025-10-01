@@ -17,9 +17,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
+import ru.blays.hub.core.domain.SortReverseOrderAccessor
+import ru.blays.hub.core.domain.SortTypeAccessor
+import ru.blays.hub.core.domain.data.FilesSortType
 import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.domain.data.models.ApkInfo
-import ru.blays.hub.core.domain.data.realType
 import ru.blays.hub.core.domain.utils.downloadsFolder
 import ru.blays.hub.core.domain.utils.getUriForFile
 import ru.blays.hub.core.domain.utils.isApkFile
@@ -27,21 +31,24 @@ import ru.blays.hub.core.domain.utils.readableDate
 import ru.blays.hub.core.domain.utils.readableSize
 import ru.blays.hub.core.downloader.DownloadTask
 import ru.blays.hub.core.downloader.repository.DownloadsRepository
-import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.packageManager.api.utils.getPackageInfo
-import ru.blays.hub.core.preferences.SettingsRepository
-import ru.blays.hub.core.preferences.proto.FilesSortMethod
-import ru.blays.hub.core.preferences.proto.FilesSortSetting
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import java.io.File
 
 class DownloadsListComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val downloadsRepository: DownloadsRepository,
-    private val settingsRepository: SettingsRepository,
     private val context: Context,
+    private val packageManagerResolver: PackageManagerResolver,
     private val menuComponentFactory: DownloadsMenuComponent.Factory,
 ): AppComponentContext by componentContext {
-    private val packageManager by lazy(context::getPackageManager)
+    private val packageManagerValue = preferencesHolder.getValue(PackageManagerAccessor)
+    private var sortTypeValue by preferencesHolder.getValue(SortTypeAccessor)
+    private var sortReverseOrderValue by preferencesHolder.getValue(SortReverseOrderAccessor)
+
+    private val systemPackageManager = context.packageManager
 
     private val _state = MutableStateFlow(State())
 
@@ -66,9 +73,10 @@ class DownloadsListComponent private constructor(
 
     private fun onMenuIntent(intent: DownloadsMenuComponent.Intent) {
         when(intent) {
-            is DownloadsMenuComponent.Intent.ChangeSortSetting -> changeSortSetting(intent.setting)
+            is DownloadsMenuComponent.Intent.ChangeSortSetting -> changeSortSetting(type = intent.type)
             DownloadsMenuComponent.Intent.ClearAll -> clearAll()
             DownloadsMenuComponent.Intent.Refresh -> refresh()
+            is DownloadsMenuComponent.Intent.ChangeSortOrder -> changeSortSetting(reverseOrder = intent.reverse)
         }
     }
 
@@ -106,7 +114,7 @@ class DownloadsListComponent private constructor(
 
     private fun installApk(file: ApkFile) {
         componentScope.launch {
-            val packageManager = getPackageManager(settingsRepository.pmType.realType)
+            val packageManager = packageManagerResolver.getPackageManager(packageManagerValue.value)
             packageManager.installApp(file.file)
         }
     }
@@ -124,33 +132,29 @@ class DownloadsListComponent private constructor(
         }
     }
 
-    private fun changeSortSetting(setting: FilesSortSetting) {
-        componentScope.launch {
-            settingsRepository.setValue {
-                filesSortSetting = setting
-            }
+    private fun changeSortSetting(
+        type: FilesSortType? = null,
+        reverseOrder: Boolean? = null,
+    ) {
+        type?.let { this.sortTypeValue = it }
+        reverseOrder?.let { this.sortReverseOrderValue = it }
 
-            val oldList = state.value.downloadedFiles
-            if(oldList.isEmpty()) return@launch
-            _state.update {
-                it.copy(
-                    downloadedFiles = it.downloadedFiles.sortFiles(setting)
-                )
-            }
+        val oldList = state.value.downloadedFiles
+        if(oldList.isEmpty()) return
+        _state.update {
+            it.copy(
+                downloadedFiles = it.downloadedFiles.sortFiles()
+            )
         }
     }
 
-    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-    private fun List<ApkFile>.sortFiles(
-        setting: FilesSortSetting
-    ): List<ApkFile> {
-        return when (setting.method) {
-            FilesSortMethod.NAME -> sortedBy { it.file.name }
-            FilesSortMethod.SIZE -> sortedBy { it.file.length() }
-            FilesSortMethod.DATE -> sortedBy { it.file.lastModified() }
-            FilesSortMethod.UNRECOGNIZED -> this
+    private fun List<ApkFile>.sortFiles(): List<ApkFile> {
+        return when (sortTypeValue) {
+            FilesSortType.NAME -> sortedBy { it.file.name }
+            FilesSortType.SIZE -> sortedBy { it.file.length() }
+            FilesSortType.MODIFY -> sortedBy { it.file.lastModified() }
         }.run {
-            if(setting.reverse) asReversed() else this
+            if(sortReverseOrderValue) asReversed() else this
         }
     }
 
@@ -161,7 +165,7 @@ class DownloadsListComponent private constructor(
         val files = context.downloadsFolder.listFiles()
             ?.filter(File::isApkFile)
             ?.map { file -> file.toDownloadedApk() }
-            ?.sortFiles(settingsRepository.filesSortSetting)
+            ?.sortFiles()
             ?: emptyList()
         _state.update {
             it.copy(
@@ -190,7 +194,7 @@ class DownloadsListComponent private constructor(
         val file = File(filePath)
         ApkFile(
             name = name,
-            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, packageManager) },
+            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, systemPackageManager) },
             sizeString = file.readableSize,
             dateString = file.readableDate,
             file = file
@@ -201,7 +205,7 @@ class DownloadsListComponent private constructor(
         val packageInfo = context.getPackageInfo(path)
         ApkFile(
             name = name,
-            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, packageManager) },
+            apkInfo = packageInfo?.let { ApkInfo.fromPackageInfo(packageInfo, systemPackageManager) },
             sizeString = readableSize,
             dateString = readableDate,
             file = this@toDownloadedApk
@@ -231,8 +235,7 @@ class DownloadsListComponent private constructor(
                 _state.update { oldState ->
                     oldState.copy(
                         tasks = oldState.tasks.filterNot { it.filePath == task.filePath },
-                        downloadedFiles = (oldState.downloadedFiles + task.toDownloadedApk())
-                            .sortFiles(settingsRepository.filesSortSetting)
+                        downloadedFiles = (oldState.downloadedFiles + task.toDownloadedApk()).sortFiles()
                     )
                 }
             }
@@ -278,10 +281,15 @@ class DownloadsListComponent private constructor(
         data class InstallApk(val file: ApkFile) : Intent()
     }
 
+    companion object {
+
+    }
+
     class Factory(
+        private val preferencesHolder: PreferencesHolder,
         private val downloadsRepository: DownloadsRepository,
-        private val settingsRepository: SettingsRepository,
         private val context: Context,
+        private val packageManagerResolver: PackageManagerResolver,
         private val menuComponentFactory: DownloadsMenuComponent.Factory,
     ) {
         operator fun invoke(
@@ -289,9 +297,10 @@ class DownloadsListComponent private constructor(
         ): DownloadsListComponent {
             return DownloadsListComponent(
                 componentContext = componentContext,
+                preferencesHolder = preferencesHolder,
                 downloadsRepository = downloadsRepository,
-                settingsRepository = settingsRepository,
                 context = context,
+                packageManagerResolver = packageManagerResolver,
                 menuComponentFactory = menuComponentFactory,
             )
         }

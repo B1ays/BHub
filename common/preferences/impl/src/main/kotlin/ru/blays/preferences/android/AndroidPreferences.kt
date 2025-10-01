@@ -1,10 +1,14 @@
 package ru.blays.preferences.android
 
+import android.R.attr.defaultValue
 import android.content.SharedPreferences
+import kotlinx.serialization.serializerOrNull
+import ru.blays.preferences.DefaultJson
 import ru.blays.preferences.api.PreferenceReader
 import ru.blays.preferences.api.PreferenceWriter
 import ru.blays.preferences.api.Preferences
 import ru.blays.preferences.extensions.edit
+import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -16,10 +20,11 @@ import kotlin.reflect.typeOf
 class AndroidPreferences(
     private val sharedPreferences: SharedPreferences
 ): Preferences {
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun <T> createReader(
         key: String,
         defaultValue: T,
+        type: KType,
     ): PreferenceReader<T> {
         return PreferenceReader {
             when (defaultValue) {
@@ -39,9 +44,19 @@ class AndroidPreferences(
                     sharedPreferences.getFloat(key, defaultValue) as T
                 }
                 is Enum<*> -> {
-                    sharedPreferences.getString(key, defaultValue.name) as T
+                    val name = sharedPreferences.getString(key, defaultValue.name) ?: defaultValue.name
+                    java.lang.Enum.valueOf(defaultValue::class.java, name) as T
                 }
-                else -> throw IllegalArgumentException("Unsupported type")
+                else -> {
+                    val serializer = DefaultJson.serializersModule.serializerOrNull(type)
+                    if(serializer != null) {
+                        val defaultValue = DefaultJson.encodeToString(serializer, defaultValue)
+                        val json = sharedPreferences.getString(key, defaultValue) ?: defaultValue
+                        DefaultJson.decodeFromString(serializer, json) as T
+                    } else {
+                        throw IllegalArgumentException("Unsupported type")
+                    }
+                }
             }
         }
     }
@@ -53,26 +68,39 @@ class AndroidPreferences(
     ): PreferenceReader<T?> {
         return PreferenceReader {
             if(containsKey(key)) {
-                when(type) {
-                    BooleanType -> {
+                when(type.classifier) {
+                    BooleanType.classifier -> {
                         sharedPreferences.getBoolean(key, false) as T
                     }
-                    StringType -> {
+                    StringType.classifier -> {
                         sharedPreferences.getString(key, null) as T
                     }
-                    IntType -> {
+                    IntType.classifier -> {
                         sharedPreferences.getInt(key, 0) as T
                     }
-                    LongType -> {
+                    LongType.classifier -> {
                         sharedPreferences.getLong(key, 0) as T
                     }
-                    FloatType -> {
+                    FloatType.classifier -> {
                         sharedPreferences.getFloat(key, 0F) as T
                     }
-                    EnumType -> {
-                        sharedPreferences.getString(key, null) as T
+                    EnumType.classifier -> {
+                        val name = sharedPreferences.getString(key, null)
+                            ?: return@PreferenceReader null
+                        val kClass = type.classifier as? KClass<*>
+                            ?: return@PreferenceReader null
+                        java.lang.Enum.valueOf(kClass.java as Class<out Enum<*>>, name) as T
                     }
-                    else -> throw IllegalArgumentException("Unsupported type")
+                    else -> {
+                        val serializer = DefaultJson.serializersModule.serializerOrNull(type)
+                        if(serializer != null) {
+                            val defaultValue = DefaultJson.encodeToString(serializer, defaultValue)
+                            val json = sharedPreferences.getString(key, defaultValue) ?: defaultValue
+                            DefaultJson.decodeFromString(serializer, json) as T
+                        } else {
+                            throw IllegalArgumentException("Unsupported type")
+                        }
+                    }
                 }
             } else {
                 null
@@ -80,7 +108,7 @@ class AndroidPreferences(
         }
     }
 
-    override fun <T> createWriter(key: String): PreferenceWriter<T> {
+    override fun <T> createWriter(key: String, type: KType): PreferenceWriter<T> {
         return PreferenceWriter { value ->
             when(value) {
                 is Boolean -> sharedPreferences.edit {
@@ -101,12 +129,20 @@ class AndroidPreferences(
                 is Enum<*> -> sharedPreferences.edit {
                     putString(key, value.name)
                 }
-                else -> false
+                else -> {
+                    val serializer = DefaultJson.serializersModule.serializerOrNull(type)
+                    if(serializer != null) {
+                        val json = DefaultJson.encodeToString(serializer, value)
+                        sharedPreferences.edit {
+                            putString(key, json)
+                        }
+                    } else false
+                }
             }
         }
     }
 
-    override fun <T> createNullableWriter(key: String): PreferenceWriter<T?> {
+    override fun <T> createNullableWriter(key: String, type: KType): PreferenceWriter<T?> {
         return PreferenceWriter { value ->
             when(value) {
                 is Boolean -> sharedPreferences.edit {
@@ -128,7 +164,15 @@ class AndroidPreferences(
                     putString(key, value.name)
                 }
                 null -> removeKey(key)
-                else -> false
+                else -> {
+                    val serializer = DefaultJson.serializersModule.serializerOrNull(type)
+                    if(serializer != null) {
+                        val json = DefaultJson.encodeToString(serializer, value)
+                        sharedPreferences.edit {
+                            putString(key, json)
+                        }
+                    } else false
+                }
             }
         }
     }

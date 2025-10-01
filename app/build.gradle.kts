@@ -92,6 +92,9 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.ui)
     implementation(projects.core.packageManager.api)
+    implementation(projects.common.preferences.api)
+    implementation(projects.common.preferences.extensions)
+    implementation(projects.common.preferences.default)
     implementation(projects.utils.workerDsl)
     implementation(projects.utils.coilDsl)
 }

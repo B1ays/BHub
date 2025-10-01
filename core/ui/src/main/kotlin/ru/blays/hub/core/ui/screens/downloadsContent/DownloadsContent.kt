@@ -67,10 +67,9 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import ru.blays.hub.core.domain.components.downloadComponents.DownloadsListComponent
 import ru.blays.hub.core.domain.components.downloadComponents.DownloadsMenuComponent
+import ru.blays.hub.core.domain.data.FilesSortType
 import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.domain.utils.copyToClipboard
-import ru.blays.hub.core.preferences.proto.FilesSortMethod
-import ru.blays.hub.core.preferences.proto.copy
 import ru.blays.hub.core.ui.R
 import ru.blays.hub.core.ui.elements.buttons.CustomIconButton
 import ru.blays.hub.core.ui.elements.collapsingToolbar.CollapsingTitle
@@ -590,20 +589,17 @@ private fun FloatingMenu(
                     expanded = sortSettingMenuExpanded,
                     onDismissRequest = { sortSettingMenuExpanded = false },
                 ) {
-                    FilesSortMethod.entries.forEach { method ->
-                        sortMethodName(method = method)?.let { name ->
+                    FilesSortType.entries.forEach { type ->
+                        sortMethodName(type = type)?.let { name ->
                             DropdownMenuItem(
+                                enabled = type != state.filesSortType,
                                 text = { Text(text = name) },
                                 onClick = {
                                     component.sendIntent(
-                                        DownloadsMenuComponent.Intent.ChangeSortSetting(
-                                            state.filesSortSetting.copy {
-                                                this.method = method
-                                            }
-                                        )
+                                        DownloadsMenuComponent.Intent.ChangeSortSetting(type)
                                     )
                                 },
-                                modifier = Modifier.thenIf(method == state.filesSortSetting.method) {
+                                modifier = Modifier.thenIf(type == state.filesSortType) {
                                     background(MaterialTheme.colorScheme.primaryColorAtAlpha(0.25F))
                                 }
                             )
@@ -615,17 +611,13 @@ private fun FloatingMenu(
                         },
                         trailingIcon = {
                             Checkbox(
-                                checked = state.filesSortSetting.reverse,
+                                checked = state.reverseOrder,
                                 onCheckedChange = null
                             )
                         },
                         onClick = {
                             component.sendIntent(
-                                DownloadsMenuComponent.Intent.ChangeSortSetting(
-                                    state.filesSortSetting.copy {
-                                        reverse = !reverse
-                                    }
-                                )
+                                DownloadsMenuComponent.Intent.ChangeSortOrder(!state.reverseOrder)
                             )
                         },
                     )
@@ -726,12 +718,11 @@ fun MenuItem(
 
 @NonRestartableComposable
 @Composable
-fun sortMethodName(method: FilesSortMethod): String? {
-    return when (method) {
-        FilesSortMethod.NAME -> stringResource(id = R.string.sort_order_by_name)
-        FilesSortMethod.SIZE -> stringResource(id = R.string.sort_order_by_size)
-        FilesSortMethod.DATE -> stringResource(id = R.string.sort_order_by_date)
-        FilesSortMethod.UNRECOGNIZED -> null
+fun sortMethodName(type: FilesSortType): String? {
+    return when (type) {
+        FilesSortType.NAME -> stringResource(id = R.string.sort_order_by_name)
+        FilesSortType.SIZE -> stringResource(id = R.string.sort_order_by_size)
+        FilesSortType.MODIFY -> stringResource(id = R.string.sort_order_by_date)
     }
 }
 

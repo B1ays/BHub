@@ -25,61 +25,57 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.materialkolor.LocalDynamicMaterialThemeSeed
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
-import ru.blays.hub.core.preferences.proto.ThemeSettings
-import ru.blays.hub.core.preferences.proto.ThemeType
+import ru.blays.hub.core.domain.data.ThemePreferenceModel
+import ru.blays.hub.core.domain.data.isMonet
 import ru.blays.hub.core.ui.values.LocalDarkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
 @Composable
 fun BHubTheme(
-    themeSettings: ThemeSettings,
+    themePreferences: ThemePreferenceModel,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
 
-    val isSystemInDarkTheme = isSystemInDarkTheme()
-    val darkTheme = when(themeSettings.themeType) {
-        ThemeType.SYSTEM -> isSystemInDarkTheme
-        ThemeType.DARK -> true
-        ThemeType.LIGHT -> false
-        ThemeType.UNRECOGNIZED -> isSystemInDarkTheme
-    }
-
-    val primaryColor = remember(themeSettings.accentColorIndex) {
-        defaultAccentColors.getOrElse(themeSettings.accentColorIndex) {
-            defaultAccentColors[1]
-        }
+    val isDarkTheme = when(themePreferences.themeType) {
+        ThemePreferenceModel.ThemeType.SYSTEM -> isSystemInDarkTheme()
+        ThemePreferenceModel.ThemeType.DARK -> true
+        ThemePreferenceModel.ThemeType.LIGHT -> false
     }
 
     val animationSpec: AnimationSpec<Color> = spring(stiffness = 300F, dampingRatio = .6F)
 
     val colorScheme by remember(
-        primaryColor,
-        darkTheme,
-        themeSettings.amoledTheme,
-        themeSettings.monetColors
+        themePreferences,
+        isDarkTheme,
     ) {
         derivedStateOf {
             val scheme = when {
-                themeSettings.monetColors && darkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                themePreferences.colorAccentType.isMonet() && isDarkTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                     dynamicDarkColorScheme(context)
                 }
-                themeSettings.monetColors && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                themePreferences.colorAccentType.isMonet() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                     dynamicLightColorScheme(context)
                 }
-                else -> dynamicColorScheme(
-                    seedColor = primaryColor,
-                    isDark = darkTheme,
-                    style = PaletteStyle.Content,
-                    isAmoled = false
-                )
+                else -> {
+                    val colorIndex = when(val accentType = themePreferences.colorAccentType) {
+                        is ThemePreferenceModel.AccentType.Dynamic -> accentType.fallbackIndex
+                        is ThemePreferenceModel.AccentType.Preset -> accentType.index
+                    }
+                    val seedColor = DefaultAccentColors.getOrElse(colorIndex) { DefaultAccentColors[1] }
+                    dynamicColorScheme(
+                        seedColor = seedColor,
+                        isDark = isDarkTheme,
+                        style = PaletteStyle.Content,
+                        isAmoled = false
+                    )
+                }
             }
             scheme.let {
-                if(themeSettings.amoledTheme && darkTheme) it.copy(
+                if(themePreferences.amoledTheme && isDarkTheme) it.copy(
                     background = Color.Black,
                     surface = Color.Black,
                     surfaceVariant = Color.Black,
@@ -132,7 +128,7 @@ fun BHubTheme(
     val rippleConfiguration = remember(animatedColorScheme.primary) {
         expressiveRippleConfiguration(
             primaryColor = animatedColorScheme.primary,
-            darkTheme = darkTheme
+            darkTheme = isDarkTheme
         )
     }
 
@@ -145,18 +141,15 @@ fun BHubTheme(
     }
 
     if (!view.isInEditMode) {
+        @Suppress("DEPRECATION")
         SideEffect {
             window?.navigationBarColor = android.graphics.Color.TRANSPARENT
             window?.statusBarColor = android.graphics.Color.TRANSPARENT
-            /*animatedColorScheme.background.toArgb().let { backgroundColor ->
-                window?.navigationBarColor = backgroundColor
-                window?.statusBarColor = backgroundColor
-            }*/
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 window?.isNavigationBarContrastEnforced = false
             }
-            insetsController?.isAppearanceLightStatusBars = !darkTheme
-            insetsController?.isAppearanceLightNavigationBars = !darkTheme
+            insetsController?.isAppearanceLightStatusBars = !isDarkTheme
+            insetsController?.isAppearanceLightNavigationBars = !isDarkTheme
         }
     }
 
@@ -165,8 +158,7 @@ fun BHubTheme(
         content = {
             CompositionLocalProvider(
                 LocalRippleConfiguration provides rippleConfiguration,
-                LocalDynamicMaterialThemeSeed provides primaryColor,
-                LocalDarkTheme provides darkTheme,
+                LocalDarkTheme provides isDarkTheme,
                 content = content
             )
         },

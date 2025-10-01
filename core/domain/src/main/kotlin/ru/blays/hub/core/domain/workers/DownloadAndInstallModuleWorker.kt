@@ -23,6 +23,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import ru.blays.hub.core.domain.ACTION_MODULE_INSTALL
 import ru.blays.hub.core.domain.FLAG_REINSTALL
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.utils.collectWhile
 import ru.blays.hub.core.domain.utils.launchSelfIntent
@@ -35,7 +36,6 @@ import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.packageManager.api.EXTRA_ACTION_SUCCESS
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerType
-import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.utils.workerdsl.oneTimeWorkRequest
 import ru.blays.hub.utils.workerdsl.workData
 import java.io.File
@@ -46,7 +46,8 @@ class DownloadAndInstallModuleWorker(
     params: WorkerParameters,
     private val downloadRepository: DownloadsRepository,
     private val moduleManager: ModuleManager,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val packageManagerResolver: PackageManagerResolver,
 ) : CoroutineWorker(appContext, params), KoinComponent {
     private val notificationManager = applicationContext.getSystemService<NotificationManager>()!!
 
@@ -67,7 +68,7 @@ class DownloadAndInstallModuleWorker(
 
         val flags: IntArray = inputData.getIntArray(FLAGS_KEY) ?: return Result.failure()
 
-        val packageManager = getPackageManager(PackageManagerType.Root)
+        val packageManager = packageManagerResolver.getPackageManager(PackageManagerType.Root)
 
         workerNotificationID = modApkDownloadRequest.hashCode()
         resultNotificationID = workerNotificationID + Random.nextInt()

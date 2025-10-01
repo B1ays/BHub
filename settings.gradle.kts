@@ -55,7 +55,7 @@ include(":common:preferences:api")
 include(":common:preferences:impl")
 include(":common:preferences:default")
 include(":common:preferences:extensions")
-include(":common:preferences:serialization")
+//include(":common:preferences:serialization")
 
 // Utils
 include(":utils:workerDsl")

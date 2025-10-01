@@ -33,7 +33,7 @@ class MainActivity: ComponentActivity() {
         setContent {
             val themeState by rootComponent.themeStateFlow.collectAsState()
             BHubTheme(
-                themeSettings = themeState
+                themePreferences = themeState
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.background

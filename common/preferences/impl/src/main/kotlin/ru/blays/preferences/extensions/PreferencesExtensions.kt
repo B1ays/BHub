@@ -13,11 +13,12 @@ import kotlin.reflect.KType
  */
 fun <T> Preferences.createReaderAndWriter(
     key: String,
-    defaultValue: T
+    defaultValue: T,
+    type: KType,
 ): Pair<PreferenceReader<T>, PreferenceWriter<T>> {
     return Pair(
-        first = createReader(key, defaultValue),
-        second = createWriter(key)
+        first = createReader(key, defaultValue, type),
+        second = createWriter(key, type)
     )
 }
 
@@ -32,6 +33,6 @@ fun <T> Preferences.createNullableReaderAndWriter(
 ): Pair<PreferenceReader<T?>, PreferenceWriter<T?>> {
     return Pair(
         first = createNullableReader(key, type),
-        second = createNullableWriter(key)
+        second = createNullableWriter(key, type)
     )
 }

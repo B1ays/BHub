@@ -15,32 +15,36 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.R
 import ru.blays.hub.core.domain.data.models.AppCardModel
 import ru.blays.hub.core.domain.data.models.AppType
 import ru.blays.hub.core.domain.data.models.AppVersionCard
 import ru.blays.hub.core.domain.data.models.VersionType
-import ru.blays.hub.core.domain.data.realType
 import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.network.NetworkResult
 import ru.blays.hub.core.network.models.CatalogModel
 import ru.blays.hub.core.network.repositories.appsRepository.AppsRepository
 import ru.blays.hub.core.packageManager.api.PackageManager
-import ru.blays.hub.core.packageManager.api.getPackageManager
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 
 class AppVersionsListComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val app: AppCardModel,
     private val versionType: VersionType,
     private val appsRepository: AppsRepository,
-    private val settingsRepository: SettingsRepository,
     private val moduleManager: ModuleManager,
+    private val packageManagerResolver: PackageManagerResolver,
     private val context: Context,
     private val versionPageComponentFactory: VersionPageComponent.Factory,
 ): AppComponentContext by componentContext {
+    private val packageManagerValue = preferencesHolder.getValue(PackageManagerAccessor)
+
     private val packageManager: PackageManager
-        get() = getPackageManager(settingsRepository.pmType.realType)
+        get() = packageManagerResolver.getPackageManager(packageManagerValue.value)
 
     private val slotNavigation = SlotNavigation<VersionPageSlotConfig>()
 
@@ -207,9 +211,10 @@ class AppVersionsListComponent private constructor(
 
     class Factory(
         private val appsRepository: AppsRepository,
-        private val settingsRepository: SettingsRepository,
+        private val preferencesHolder: PreferencesHolder,
         private val moduleManager: ModuleManager,
         private val context: Context,
+        private val packageManagerResolver: PackageManagerResolver,
         private val versionPageComponentFactory: VersionPageComponent.Factory,
     ) {
         operator fun invoke(
@@ -219,11 +224,12 @@ class AppVersionsListComponent private constructor(
         ): AppVersionsListComponent {
             return AppVersionsListComponent(
                 componentContext = componentContext,
+                preferencesHolder = preferencesHolder,
                 app = app,
                 versionType = versionType,
                 appsRepository = appsRepository,
-                settingsRepository = settingsRepository,
                 moduleManager = moduleManager,
+                packageManagerResolver = packageManagerResolver,
                 context = context,
                 versionPageComponentFactory = versionPageComponentFactory,
             )

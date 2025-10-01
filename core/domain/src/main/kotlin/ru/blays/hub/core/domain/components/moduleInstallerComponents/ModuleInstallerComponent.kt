@@ -12,31 +12,35 @@ import kotlinx.coroutines.launch
 import okhttp3.internal.closeQuietly
 import ru.blays.hub.core.deviceUtils.DeviceInfo
 import ru.blays.hub.core.domain.AppComponentContext
+import ru.blays.hub.core.domain.PackageManagerAccessor
+import ru.blays.hub.core.domain.PackageManagerResolver
 import ru.blays.hub.core.domain.data.models.ApkFile
 import ru.blays.hub.core.domain.data.models.ApkInfo
-import ru.blays.hub.core.domain.data.realType
 import ru.blays.hub.core.domain.utils.readableDate
 import ru.blays.hub.core.domain.utils.readableSize
 import ru.blays.hub.core.moduleManager.ModuleManager
 import ru.blays.hub.core.packageManager.api.PackageManager
 import ru.blays.hub.core.packageManager.api.PackageManagerResult
-import ru.blays.hub.core.packageManager.api.getPackageManager
 import ru.blays.hub.core.packageManager.api.utils.getPackageInfo
-import ru.blays.hub.core.preferences.SettingsRepository
+import ru.blays.preferences.accessor.getValue
+import ru.blays.preferences.api.PreferencesHolder
 import java.io.File
 
 class ModuleInstallerComponent private constructor(
     componentContext: AppComponentContext,
+    preferencesHolder: PreferencesHolder,
     private val moduleManager: ModuleManager,
-    private val settingsRepository: SettingsRepository,
+    private val packageManagerResolver: PackageManagerResolver,
     private val context: Context,
     private val modApk: ApkFile,
     private val origApk: ApkFile? = null,
     private val onOutput: (Output) -> Unit
 ): AppComponentContext by componentContext {
-    private val androidPackageManager = context.packageManager
+    private val systemPackageManager = context.packageManager
+
+    private val packageManagerType by preferencesHolder.getValue(PackageManagerAccessor)
     private val packageManager: PackageManager
-        get() = getPackageManager(settingsRepository.pmType.realType)
+        get() = packageManagerResolver.getPackageManager(packageManagerType)
 
     private var tempFile: File? = null
 
@@ -113,7 +117,7 @@ class ModuleInstallerComponent private constructor(
                     name = tempFile.name,
                     apkInfo = ApkInfo.fromPackageInfo(
                         packageInfo = packageInfo,
-                        packageManager = androidPackageManager
+                        packageManager = systemPackageManager
                     ),
                     sizeString = tempFile.readableSize,
                     dateString = tempFile.readableDate,
